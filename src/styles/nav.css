@@ -1,0 +1,237 @@
+/* ============================================================================
+   MENU
+   ========================================================================== */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  transition:
+    background 0.35s var(--ease-saida),
+    box-shadow 0.35s var(--ease-saida);
+}
+
+.nav[data-descido='true'] {
+  background: color-mix(in oklab, var(--color-papel-alto) 92%, transparent);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 1px 0 var(--color-papel-fundo);
+}
+
+.nav__interior {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-block: 0.85rem;
+}
+
+.nav__logo {
+  flex: none;
+  min-width: 0;
+  line-height: 0;
+}
+
+/* O lockup deitado tem quase 5,3 de proporção: a 46px de altura ele mede 243px
+   e, num celular de 390px, não sobra espaço para o hambúrguer ao lado. */
+.nav__logo .logo {
+  --logo-altura: 34px;
+}
+
+@media (min-width: 420px) {
+  .nav__logo .logo {
+    --logo-altura: 40px;
+  }
+}
+
+@media (min-width: 1040px) {
+  .nav__logo .logo {
+    --logo-altura: 46px;
+  }
+}
+
+.nav__links {
+  display: none;
+  margin-left: auto;
+  gap: 0.35rem;
+}
+
+@media (min-width: 1040px) {
+  .nav__links {
+    display: flex;
+  }
+}
+
+.nav__link {
+  position: relative;
+  padding: 0.6rem 0.95rem;
+  font-family: var(--font-campanha);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: var(--color-branco);
+  border-radius: 999px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.nav[data-descido='true'] .nav__link {
+  color: var(--color-tinta-fraca);
+}
+
+.nav__link:hover {
+  color: var(--color-rosa);
+}
+
+.nav__link[data-ativo='true'] {
+  color: var(--color-branco);
+  background: color-mix(in oklab, var(--color-branco) 18%, transparent);
+}
+
+.nav[data-descido='true'] .nav__link[data-ativo='true'] {
+  color: var(--color-vivo);
+  background: var(--color-papel-fundo);
+}
+
+.nav__acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+@media (min-width: 1040px) {
+  .nav__acoes {
+    margin-left: 0;
+  }
+}
+
+.nav__cta {
+  display: none;
+  min-height: 2.75rem;
+  padding: 0.55rem 1.3rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  box-shadow: 0 3px 0 color-mix(in oklab, var(--color-rosa) 55%, #000);
+}
+
+@media (min-width: 1040px) {
+  .nav__cta {
+    display: inline-flex;
+  }
+}
+
+.nav__hamburguer {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  color: var(--color-branco);
+  background: color-mix(in oklab, var(--color-branco) 16%, transparent);
+}
+
+.nav[data-descido='true'] .nav__hamburguer {
+  color: var(--color-mar);
+  background: var(--color-papel-fundo);
+}
+
+@media (min-width: 1040px) {
+  .nav__hamburguer {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   GAVETA (mobile)
+   ========================================================================== */
+
+.gaveta {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(24rem, 100%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-mar);
+  color: var(--color-noite-texto);
+  transform: translateX(100%);
+  transition: transform 0.4s var(--ease-saida);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.gaveta[data-aberto='true'] {
+  transform: none;
+}
+
+.gaveta__veu {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: color-mix(in oklab, var(--color-noite) 65%, transparent);
+  backdrop-filter: blur(3px);
+  cursor: default;
+}
+
+.gaveta__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.85rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-branco) 15%, transparent);
+}
+
+.gaveta__fechar {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-branco) 12%, transparent);
+}
+
+.gaveta__links {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.15rem;
+  gap: 0.25rem;
+}
+
+.gaveta__link {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  font-family: var(--font-campanha);
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0.9rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.gaveta__link[data-ativo='true'] {
+  background: color-mix(in oklab, var(--color-branco) 10%, transparent);
+  color: var(--color-rosa-neon);
+}
+
+.gaveta__indice {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--color-rosa);
+}
+
+.gaveta__pe {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-block: 1.75rem 2.25rem;
+  border-top: 1px solid color-mix(in oklab, var(--color-branco) 15%, transparent);
+}
+
+.gaveta__pe .btn {
+  width: 100%;
+}

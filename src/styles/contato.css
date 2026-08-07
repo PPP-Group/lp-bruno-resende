@@ -1,0 +1,721 @@
+/* ============================================================================
+   ENSAIO DO VOTO
+   ----------------------------------------------------------------------------
+   O painel é desenhado na identidade da campanha, azul, rosa e Clash Display
+   e não na da urna oficial. A semelhança é de gesto (digitar, conferir,
+   confirmar), nunca de aparência.
+   ========================================================================== */
+
+.urna-secao {
+  background: var(--color-papel);
+}
+
+.urna-secao__interior {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 4rem);
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .urna-secao__interior {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  }
+}
+
+.urna-secao__dizer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.urna-passos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.urna-passos li {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-family: var(--font-campanha);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.urna-passos span {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-vivo);
+  border-radius: 999px;
+}
+
+/* ---------- O painel ---------- */
+
+.urna {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1.1rem, 3vw, 1.6rem);
+  border-radius: 1.5rem;
+  background: var(--color-mar);
+  box-shadow: 0 30px 60px -35px var(--color-noite);
+}
+
+.urna :focus-visible {
+  outline-color: var(--color-rosa-neon);
+}
+
+.urna__tela {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 13.5rem;
+  padding: 1.1rem 1.25rem 1.25rem;
+  border-radius: 1rem;
+  background: var(--color-branco);
+  color: var(--color-noite);
+}
+
+.urna__cargo {
+  font-family: var(--font-campanha);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-vivo);
+}
+
+.urna__digitos {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.urna__casa {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3.6rem;
+  font-family: var(--font-campanha);
+  font-size: 2rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  background: color-mix(in oklab, var(--color-noite) 8%, transparent);
+  color: var(--color-noite);
+  transition: background 0.2s, color 0.2s;
+}
+
+.urna__casa[data-cheia='true'] {
+  background: var(--color-noite);
+  color: var(--color-rosa-neon);
+}
+
+.urna__instrucao {
+  margin-top: auto;
+  font-size: 0.9375rem;
+  color: var(--color-tinta-fraca);
+}
+
+.urna__cartao {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px solid color-mix(in oklab, var(--color-noite) 12%, transparent);
+  animation: cartao-entra 0.35s var(--ease-saida) both;
+}
+
+@keyframes cartao-entra {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.urna__cartao img {
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  object-position: 50% 22%;
+}
+
+.urna__cartao div {
+  display: flex;
+  flex-direction: column;
+}
+
+.urna__cartao strong {
+  font-family: var(--font-campanha);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.urna__cartao span {
+  font-size: 0.875rem;
+  color: var(--color-tinta-fraca);
+}
+
+/* Errar precisa ser visivelmente diferente de acertar: é o contraste entre os
+   dois estados que faz o número ser decorado. */
+.urna__nulo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px solid color-mix(in oklab, var(--color-noite) 12%, transparent);
+  font-family: var(--font-campanha);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-noite);
+}
+
+.urna__nulo span {
+  font-family: var(--font-leitura);
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.4;
+  color: var(--color-tinta-fraca);
+}
+
+.urna__fim {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-vivo);
+}
+
+/* ---------- Teclado ---------- */
+
+.urna__teclado {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.urna__tecla {
+  min-height: 3.25rem;
+  font-family: var(--font-campanha);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--color-branco);
+  background: color-mix(in oklab, var(--color-branco) 12%, transparent);
+  border-radius: 0.7rem;
+  transition:
+    background 0.15s,
+    transform 0.12s;
+}
+
+.urna__tecla:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--color-branco) 22%, transparent);
+}
+
+.urna__tecla:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.urna__tecla:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.urna__tecla--corrige,
+.urna__tecla--confirma {
+  grid-column: span 2;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.urna__tecla--corrige {
+  grid-column: 1 / span 2;
+  background: color-mix(in oklab, var(--color-branco) 8%, transparent);
+}
+
+.urna__tecla--confirma {
+  grid-column: 4 / span 2;
+  color: #fff;
+  background: var(--color-rosa);
+}
+
+.urna__tecla--confirma:hover:not(:disabled) {
+  background: var(--color-rosa-neon);
+  color: var(--color-noite);
+}
+
+.urna__aviso {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--color-noite-fraco);
+}
+
+/* ============================================================================
+   CONTATO
+   ========================================================================== */
+
+.contato {
+  background: var(--color-papel-alto);
+}
+
+.contato__interior {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 4rem);
+  align-items: start;
+}
+
+@media (min-width: 940px) {
+  .contato__interior {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  }
+}
+
+.contato__dizer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* O formulário é bem mais alto que o texto ao lado. Grudar o texto acompanha
+   quem está preenchendo em vez de deixar meia tela em branco. */
+@media (min-width: 940px) {
+  .contato__dizer {
+    position: sticky;
+    top: 7rem;
+  }
+}
+
+.contato__redes {
+  margin-top: 1.5rem;
+}
+
+.contato__redes-titulo {
+  font-family: var(--font-campanha);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-tinta-fraca);
+  margin-bottom: 0.75rem;
+}
+
+.contato__redes ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rede {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0.7rem 1.15rem;
+  text-decoration: none;
+  border-radius: 999px;
+  color: var(--color-vivo);
+  background: color-mix(in oklab, var(--color-vivo) 9%, transparent);
+  transition: background 0.2s, color 0.2s;
+}
+
+.rede:hover {
+  color: #fff;
+  background: var(--color-vivo);
+}
+
+.rede__nome {
+  font-family: var(--font-campanha);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* ---------- Formulário ---------- */
+
+.formulario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem;
+  padding: clamp(1.5rem, 3.5vw, 2.25rem);
+  border-radius: 1.5rem;
+  background: var(--color-papel);
+  border: 1px solid var(--color-papel-fundo);
+}
+
+@media (max-width: 560px) {
+  .formulario {
+    grid-template-columns: 1fr;
+  }
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.campo--largo {
+  grid-column: 1 / -1;
+}
+
+.campo label {
+  font-family: var(--font-campanha);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-tinta);
+}
+
+.campo input[type='text'],
+.campo select,
+.campo textarea {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.85rem 1rem;
+  font: inherit;
+  font-size: 1.0625rem;
+  color: var(--color-tinta);
+  background: var(--color-papel-alto);
+  border: 1px solid var(--color-papel-fundo);
+  border-radius: 0.7rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.campo textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  outline: none;
+  border-color: var(--color-vivo);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-vivo) 22%, transparent);
+}
+
+.campo__dica {
+  font-size: 0.8125rem;
+  color: var(--color-tinta-fraca);
+}
+
+/* ---------- Caixas de marcar ---------- */
+
+.caixa {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+  cursor: pointer;
+}
+
+.caixa input[type='checkbox'],
+.marcador input[type='checkbox'] {
+  width: 1.4rem;
+  height: 1.4rem;
+  margin: 0.15rem 0 0;
+  accent-color: var(--color-rosa);
+  flex: none;
+  cursor: pointer;
+}
+
+.caixa strong {
+  display: block;
+  font-family: var(--font-campanha);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.caixa__texto {
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--color-tinta-fraca);
+}
+
+.voluntario {
+  padding: 1.15rem 1.25rem;
+  border-radius: 1rem;
+  background: color-mix(in oklab, var(--color-rosa) 7%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-rosa) 22%, transparent);
+}
+
+.voluntario__opcoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.marcador {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  background: var(--color-papel-alto);
+  border-radius: 0.6rem;
+  cursor: pointer;
+}
+
+.formulario__erro {
+  grid-column: 1 / -1;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.9375rem;
+  border-radius: 0.7rem;
+  color: color-mix(in oklab, var(--color-rosa) 70%, #000);
+  background: color-mix(in oklab, var(--color-rosa) 14%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-rosa) 40%, transparent);
+}
+
+.formulario__enviar {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.formulario__enviar:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* ---------- Confirmação ---------- */
+
+.formulario--fim {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  --btn-vazado-inverso: var(--color-papel);
+}
+
+.formulario__marca {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--color-vivo);
+  margin-bottom: 0.35rem;
+}
+
+.formulario--fim h3 {
+  font-family: var(--font-campanha);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.formulario--fim p {
+  color: var(--color-tinta-fraca);
+  max-width: 40ch;
+}
+
+.formulario--fim .btn {
+  margin-top: 0.5rem;
+}
+
+/* ============================================================================
+   BOTÃO FLUTUANTE
+   ========================================================================== */
+
+.fab {
+  position: fixed;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(1rem, 3vw, 2rem);
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 3.5rem;
+  padding: 0.85rem 1.35rem;
+  text-decoration: none;
+  color: #fff;
+  background: #25d366;
+  border-radius: 999px;
+  box-shadow: 0 12px 30px -10px rgb(0 0 0 / 0.45);
+  opacity: 0;
+  transform: translateY(1rem);
+  pointer-events: none;
+  transition:
+    opacity 0.3s var(--ease-saida),
+    transform 0.3s var(--ease-saida);
+}
+
+.fab[data-visivel='true'] {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.fab__texto {
+  font-family: var(--font-campanha);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .fab__texto {
+    display: none;
+  }
+
+  .fab {
+    padding: 0.9rem;
+  }
+}
+
+/* ============================================================================
+   RODAPÉ
+   ========================================================================== */
+
+.rodape {
+  position: relative;
+  padding-block: clamp(3rem, 6vw, 4.5rem) 2rem;
+  color: var(--color-noite-texto);
+  background: var(--color-noite);
+}
+
+.rodape :focus-visible {
+  outline-color: var(--color-rosa-neon);
+}
+
+.rodape__topo {
+  display: grid;
+  gap: clamp(2rem, 4vw, 3rem);
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-branco) 14%, transparent);
+}
+
+@media (min-width: 860px) {
+  .rodape__topo {
+    grid-template-columns: minmax(0, 1.1fr) auto minmax(0, 1fr);
+  }
+}
+
+.rodape__marca {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.rodape__legenda {
+  font-family: var(--font-campanha);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-rosa-neon);
+  margin-bottom: 1rem;
+}
+
+.rodape__mapa ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rodape__mapa a {
+  font-family: var(--font-campanha);
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--color-noite-texto);
+}
+
+.rodape__mapa a:hover {
+  color: var(--color-rosa-neon);
+}
+
+.rodape__ficha dl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.rodape__ficha dt {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-noite-fraco);
+}
+
+.rodape__ficha dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+.rodape__numero {
+  font-family: var(--font-campanha);
+  font-size: 1.5rem!important;
+  font-weight: 700;
+  color: var(--color-rosa-neon);
+}
+
+.rodape__pendente {
+  font-style: italic;
+  color: var(--color-noite-fraco);
+}
+
+.rodape__redes {
+  display: flex;
+  gap: 0.6rem;
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+}
+
+.rodape__redes a {
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: 999px;
+  color: var(--color-noite-texto);
+  background: color-mix(in oklab, var(--color-branco) 10%, transparent);
+  transition: background 0.2s, color 0.2s;
+}
+
+.rodape__redes a:hover {
+  color: #fff;
+  background: var(--color-rosa);
+}
+
+.rodape__legal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-top: 1.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-noite-fraco);
+}
+
+.rodape__legal p {
+  max-width: 78ch;
+}

@@ -1,0 +1,281 @@
+/* ============================================================================
+   HERÓI
+   ----------------------------------------------------------------------------
+   O cartaz oficial da campanha ocupa o topo inteiro. O fundo da seção é o mesmo
+   azul do fundo da arte, então o cartaz assenta na página em vez de parecer uma
+   figura colada sobre outra cor.
+   ========================================================================== */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  padding-top: clamp(5.5rem, 9vw, 7rem);
+  color: var(--color-noite-texto);
+  background: linear-gradient(168deg, var(--color-mar) 0%, var(--color-royal) 62%, var(--color-vivo) 100%);
+}
+
+.hero :focus-visible {
+  outline-color: var(--color-rosa-neon);
+}
+
+/* ---------- O cartaz ----------
+   As coordenadas do selo foram medidas na arte original (4500 × 2292 px): anel
+   externo de 625px de diâmetro, centro em (2384, 1082). Daí saem as
+   porcentagens abaixo. O diâmetro do selo que gira é um fio maior que o
+   impresso, para cobri-lo por inteiro e não deixar borda dupla aparecendo.
+
+   Se a arte for trocada, estas quatro medidas têm de ser refeitas. */
+
+.hero__cartaz {
+  position: relative;
+  --selo-x: 52.99%;
+  --selo-y: 47.23%;
+  --selo-d: 14.6%;
+}
+
+@media (max-width: 700px) {
+  .hero__cartaz {
+    /* O recorte de celular vai de 0 a 2780px da arte, então o mesmo selo cai
+       em outra porcentagem. */
+    --selo-x: 85.77%;
+    --selo-y: 47.23%;
+    --selo-d: 23.6%;
+  }
+}
+
+.hero__arte {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+}
+
+.hero__selo {
+  position: absolute;
+  left: var(--selo-x);
+  top: var(--selo-y);
+  width: var(--selo-d);
+  height: auto;
+  translate: -50% -50%;
+  animation: selo-gira 26s linear infinite;
+}
+
+@keyframes selo-gira {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__selo {
+    animation: none;
+  }
+}
+
+/* A faixa corre montada na borda de baixo do cartaz: parte por cima da arte,
+   parte para fora.
+
+   A inclinação é invertida em relação às outras faixas do site, e isso não é
+   capricho: a assinatura com o 4400 fica no canto inferior DIREITO da peça, e
+   com a inclinação padrão (que sobe para a direita) a faixa entrava 16px por
+   cima do número. Invertida, o lado direito desce e passa livre; quem recebe a
+   sobreposição é o canto de baixo à esquerda, onde só há o jaleco. */
+.hero__faixa {
+  position: absolute;
+  left: -2.5%;
+  right: -2.5%;
+  bottom: 0;
+  rotate: 1.6deg;
+  translate: 0 54%;
+  z-index: 3;
+}
+
+/* ---------- Abaixo do cartaz ---------- */
+
+.hero__abaixo {
+  display: grid;
+  gap: clamp(1.75rem, 3.5vw, 3rem);
+  padding-top: clamp(3rem, 5vw, 4rem);
+  padding-bottom: clamp(2.5rem, 4vw, 3.5rem);
+}
+
+@media (min-width: 900px) {
+  .hero__abaixo {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: center;
+  }
+}
+
+.hero__dizer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hero__titulo {
+  font-family: var(--font-campanha);
+  font-size: var(--text-mega);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  max-width: 17ch;
+  color: var(--color-branco);
+}
+
+.hero__apoio {
+  max-width: 50ch;
+  font-size: var(--text-sub);
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--color-branco) 84%, transparent);
+}
+
+.hero__acao {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .hero__acao {
+    align-items: flex-end;
+  }
+}
+
+.hero__botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+/* ---------- O número ---------- */
+
+.urna-chip {
+  display: grid;
+  grid-template-areas:
+    'rotulo rotulo'
+    'numero treino';
+  align-items: center;
+  gap: 0.2rem 1.35rem;
+  padding: 0.9rem 1.5rem 1rem;
+  text-decoration: none;
+  border-radius: 1.1rem;
+  background: color-mix(in oklab, var(--color-noite) 52%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-rosa) 50%, transparent);
+  backdrop-filter: blur(8px);
+  transition:
+    border-color 0.25s,
+    transform 0.25s var(--ease-saida);
+}
+
+.urna-chip:hover {
+  border-color: var(--color-rosa);
+  transform: translateY(-2px);
+}
+
+.urna-chip__rotulo {
+  grid-area: rotulo;
+  font-family: var(--font-campanha);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-noite-fraco);
+}
+
+.urna-chip__numero {
+  grid-area: numero;
+  display: flex;
+  gap: 0.08em;
+  font-family: var(--font-campanha);
+  font-size: clamp(2.5rem, 5.5vw, 3.5rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  color: var(--color-rosa-neon);
+}
+
+/* Os dígitos entram um a um, na ordem em que a pessoa vai digitá-los. */
+.urna-chip__digito {
+  animation: digito-entra 0.5s var(--ease-saida) both;
+  animation-delay: var(--atraso);
+}
+
+@keyframes digito-entra {
+  from {
+    opacity: 0;
+    transform: translateY(0.2em);
+  }
+}
+
+.urna-chip__treino {
+  grid-area: treino;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding-bottom: 0.15rem;
+  font-family: var(--font-campanha);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-branco);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-branco) 45%, transparent);
+}
+
+/* ---------- Faixa de provas ---------- */
+
+.hero__provas {
+  position: relative;
+  border-top: 1px solid color-mix(in oklab, var(--color-branco) 20%, transparent);
+  background: color-mix(in oklab, var(--color-noite) 55%, transparent);
+}
+
+.hero__provas-interior {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding-block: 1.15rem 1.4rem;
+}
+
+@media (max-width: 560px) {
+  .hero__provas-interior {
+    grid-template-columns: 1fr;
+    gap: 1.1rem;
+  }
+}
+
+.prova {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+/* As faixas paralelas que saem do coração do logotipo, no mesmo ângulo. É o
+   único ornamento do site, e ele cita a marca em vez de decorar. */
+.prova::before {
+  content: '';
+  width: 2.5rem;
+  height: 0.7rem;
+  margin-bottom: 0.5rem;
+  background: repeating-linear-gradient(var(--angulo), var(--color-rosa) 0 3px, transparent 3px 9px);
+}
+
+.prova__valor {
+  font-family: var(--font-campanha);
+  font-size: clamp(1.65rem, 3.2vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-branco);
+}
+
+.prova__rotulo {
+  font-family: var(--font-campanha);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-rosa-neon);
+}
+
+.prova__detalhe {
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--color-noite-fraco);
+}

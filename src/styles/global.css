@@ -1,0 +1,25 @@
+/* ============================================================================
+   FOLHA-MESTRE
+   ----------------------------------------------------------------------------
+   A ORDEM DOS IMPORTS É REGRA, NÃO ARRUMAÇÃO.
+
+   base.css traz as peças compartilhadas (.btn,.faixa,.cartao,.secao). Os
+   arquivos de seção vêm DEPOIS porque precisam poder ajustar essas peças no
+   contexto delas, `.nav__cta { display: none }` só vence `.btn { display:
+   inline-flex }` se vier depois, já que as duas têm a mesma especificidade.
+
+   Com a ordem invertida o botão do menu reaparecia no celular e vazava para
+   fora da tela. Não reordene sem reproduzir esse teste em 390px de largura.
+   ========================================================================== */
+
+@import './tokens.css';
+@import '@fontsource-variable/epilogue';
+
+@import './base.css';
+
+@import './nav.css';
+@import './hero.css';
+@import './sobre.css';
+@import './propostas.css';
+@import './conquistas.css';
+@import './contato.css';

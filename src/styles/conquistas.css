@@ -1,0 +1,558 @@
+/* ============================================================================
+   CONQUISTAS
+   ----------------------------------------------------------------------------
+   A seção escura da página. É onde ficam as provas, e o fundo índigo faz o
+   rosa dos números render o máximo, é a única cor quente da tela inteira.
+   ========================================================================== */
+
+.conquistas {
+  background:
+    radial-gradient(60% 45% at 88% 8%, color-mix(in oklab, var(--color-royal) 55%, transparent) 0%, transparent 62%),
+    var(--color-noite);
+}
+
+.conquistas__cabeca {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-width: 46rem;
+  margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
+}
+
+/* ============================================================================
+   DESTAQUE, Hospital do Câncer
+   ========================================================================== */
+
+.destaque {
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 3rem);
+  padding: clamp(1.75rem, 4vw, 2.75rem);
+  border-radius: 1.5rem;
+  background: color-mix(in oklab, var(--color-branco) 7%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-rosa) 35%, transparent);
+}
+
+@media (min-width: 900px) {
+  .destaque {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+.destaque__dizer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.destaque__etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: flex-start;
+  padding: 0.35rem 0.9rem;
+  font-family: var(--font-campanha);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--color-rosa);
+  border-radius: 999px;
+}
+
+/* O ponto que pisca: a obra está em execução agora. */
+.destaque__etiqueta::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #fff;
+  animation: pisca 2.4s ease-in-out infinite;
+}
+
+@keyframes pisca {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.destaque__titulo {
+  font-family: var(--font-campanha);
+  font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--color-branco);
+}
+
+.destaque__texto {
+  max-width: 48ch;
+  color: var(--color-noite-texto);
+}
+
+.destaque__fonte {
+  max-width: 52ch;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-noite-fraco);
+}
+
+.destaque__dados {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: color-mix(in oklab, var(--color-branco) 14%, transparent);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.destaque__dados li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1.15rem 1.15rem 1.3rem;
+  background: var(--color-noite);
+}
+
+.destaque__dados strong {
+  font-family: var(--font-campanha);
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-rosa-neon);
+}
+
+.destaque__dados span {
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--color-noite-fraco);
+}
+
+/* ============================================================================
+   AS LEIS
+   ========================================================================== */
+
+.leis {
+  margin-top: clamp(3.5rem, 7vw, 5.5rem);
+}
+
+.leis__cabeca {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.leis__titulo {
+  font-family: var(--font-campanha);
+  font-size: var(--text-medio);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-branco);
+}
+
+.leis__chamada {
+  color: var(--color-noite-fraco);
+}
+
+/* As cinco leis ficam lado a lado numa prateleira só. Com `auto-fit` elas
+   caem em quatro colunas e sobra uma órfã embaixo, que é exatamente a
+   impressão oposta à que a seção quer dar. */
+.leis__lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 1180px) {
+  .leis__lista {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1179px) {
+  .leis__lista {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* O selo fica em cima do texto, não ao lado: em cinco colunas o cartão tem
+   pouco mais de 240px, e um ícone lateral roubaria um quarto da linha. */
+.lei {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.4rem;
+  border-radius: 1.1rem;
+  background: color-mix(in oklab, var(--color-branco) 6%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-branco) 12%, transparent);
+}
+
+/* As três de autoria dele ganham a borda rosa. É a distinção que mais importa
+   nesta lista, e a única que muda a cor de alguma coisa. */
+.lei[data-autoria='true'] {
+  border-color: color-mix(in oklab, var(--color-rosa) 55%, transparent);
+}
+
+.lei__selo {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.85rem;
+  color: var(--color-noite-fraco);
+  background: color-mix(in oklab, var(--color-branco) 8%, transparent);
+}
+
+.lei[data-autoria='true'] .lei__selo {
+  color: #fff;
+  background: var(--color-rosa);
+}
+
+.lei__referencia {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-campanha);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-noite-fraco);
+}
+
+.lei__autoria {
+  font-style: normal;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: var(--color-rosa-neon);
+  border: 1px solid color-mix(in oklab, var(--color-rosa) 50%, transparent);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+}
+
+.lei__titulo {
+  margin-top: 0.35rem;
+  font-family: var(--font-campanha);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--color-branco);
+}
+
+.lei__texto {
+  margin-top: 0.4rem;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--color-noite-fraco);
+}
+
+.entrega-extra {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.1rem;
+  align-items: start;
+  margin-top: 1rem;
+  padding: 1.4rem;
+  border-radius: 1.1rem;
+  color: var(--color-vivo);
+  background: color-mix(in oklab, var(--color-vivo) 16%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-vivo) 45%, transparent);
+}
+
+.entrega-extra h4 {
+  font-family: var(--font-campanha);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--color-branco);
+}
+
+.entrega-extra p {
+  margin-top: 0.35rem;
+  max-width: 66ch;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--color-noite-texto);
+}
+
+/* ============================================================================
+   MAPA DO CUIDADO
+   ========================================================================== */
+
+.mapa {
+  margin-top: clamp(3.5rem, 7vw, 5.5rem);
+}
+
+.mapa__dizer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.mapa__titulo {
+  font-family: var(--font-campanha);
+  font-size: var(--text-medio);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-branco);
+}
+
+.mapa__chamada {
+  color: var(--color-noite-fraco);
+}
+
+.mapa__corpo {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+  padding: clamp(1.5rem, 3.5vw, 2.5rem);
+  border-radius: 1.5rem;
+  background: color-mix(in oklab, var(--color-branco) 5%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-branco) 12%, transparent);
+}
+
+@media (min-width: 820px) {
+  .mapa__corpo {
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+  }
+}
+
+/* O Estado é quase o dobro de alto que de largo. Sem teto de largura, no
+   celular o mapa sozinho ocupa uma tela e meia antes de a lista aparecer. */
+.mapa__palco {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 13.5rem);
+}
+
+@media (min-width: 820px) {
+  .mapa__palco {
+    width: min(100%, 20rem);
+  }
+}
+
+.mapa__desenho {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.mapa__contorno {
+  fill: color-mix(in oklab, var(--color-vivo) 26%, transparent);
+  stroke: var(--color-rosa);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.ponto__miolo {
+  fill: var(--color-rosa-neon);
+  stroke: var(--color-noite);
+  stroke-width: 2;
+  transition:
+    fill 0.25s,
+    r 0.25s var(--ease-saida);
+}
+
+.ponto[data-ativo='true'] .ponto__miolo {
+  fill: #fff;
+  r: 9;
+}
+
+.ponto__onda {
+  fill: none;
+  stroke: var(--color-rosa-neon);
+  stroke-width: 2;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: onda 2.2s var(--ease-saida) infinite;
+}
+
+@keyframes onda {
+  from {
+    scale: 0.4;
+    opacity: 0.9;
+  }
+  to {
+    scale: 3.4;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ponto__onda {
+    animation: none;
+    opacity: 0.45;
+    scale: 2;
+  }
+}
+
+.ponto__alvo {
+  fill: transparent;
+  cursor: pointer;
+}
+
+/* ---------- Leitura do ponto aceso ---------- */
+
+.mapa__leitura {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-branco) 12%, transparent);
+}
+
+.mapa__cidade {
+  font-family: var(--font-campanha);
+  font-size: clamp(1.35rem, 2.6vw, 1.8rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--color-branco);
+}
+
+.mapa__valor {
+  font-family: var(--font-campanha);
+  font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--color-rosa-neon);
+}
+
+.mapa__detalhe {
+  font-size: 0.9375rem;
+  color: var(--color-noite-fraco);
+}
+
+/* ---------- Painel de municípios ---------- */
+
+.mapa__painel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.mapa__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cidade {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  border-radius: 0.75rem;
+  color: var(--color-noite-texto);
+  transition:
+    background 0.22s,
+    color 0.22s;
+}
+
+.cidade:hover,
+.cidade[data-ativo='true'] {
+  background: color-mix(in oklab, var(--color-branco) 10%, transparent);
+}
+
+.cidade__pino {
+  color: var(--color-noite-fraco);
+  transition: color 0.22s;
+}
+
+.cidade[data-ativo='true'] .cidade__pino {
+  color: var(--color-rosa-neon);
+}
+
+.cidade__nome {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-campanha);
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.cidade__detalhe {
+  font-family: var(--font-leitura);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--color-noite-fraco);
+}
+
+.cidade__valor {
+  font-family: var(--font-campanha);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-rosa-neon);
+}
+
+.mapa__nota {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-noite-fraco);
+  padding-top: 0.9rem;
+  border-top: 1px solid color-mix(in oklab, var(--color-branco) 12%, transparent);
+}
+
+/* ============================================================================
+   NÚMEROS
+   ========================================================================== */
+
+.numeros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 1px;
+  list-style: none;
+  margin: clamp(3.5rem, 7vw, 5.5rem) 0 0;
+  padding: 0;
+  background: color-mix(in oklab, var(--color-branco) 14%, transparent);
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+
+.numero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.75rem 1.5rem 2rem;
+  background: var(--color-noite);
+}
+
+.numero__valor {
+  font-family: var(--font-campanha);
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--color-rosa-neon);
+  /* Os dígitos não podem mudar de largura enquanto o contador roda, ou o bloco
+     inteiro treme durante a animação. */
+  font-variant-numeric: tabular-nums;
+}
+
+.numero__descricao {
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  color: var(--color-noite-fraco);
+}

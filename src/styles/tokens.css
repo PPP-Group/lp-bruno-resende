@@ -1,0 +1,88 @@
+@import 'tailwindcss';
+
+/* ============================================================================
+   TOKENS, DR. BRUNO RESENDE 4400
+   ----------------------------------------------------------------------------
+   Toda a paleta vem do manual de identidade da campanha (Apres Bruno Resende,
+   página "PALETA DE CORES"). Os hexadecimais abaixo são os oficiais, não
+   invente tons novos: derive com color-mix a partir destes.
+
+   O manual traz oito cores em duas famílias. A leitura que este site faz delas:
+   os quatro azuis são a INSTITUIÇÃO (o mandato, o Estado, a estrutura) e os
+   três rosas são o CUIDADO (a pessoa, o corpo, a urgência). O branco é o
+   respiro. É por isso que o rosa nunca pinta um fundo inteiro: ele marca o
+   ponto onde o cuidado toca, o número, a entrega, o município atendido.
+   ========================================================================== */
+
+@theme {
+  /* ---------- Azuis oficiais ---------- */
+  --color-noite: #1b1464; /* índigo profundo: a seção de provas, contornos */
+  --color-mar: #143e7a; /* navy: fundo dominante da campanha */
+  --color-royal: #0c4faf; /* azul de transição */
+  --color-vivo: #0071bc; /* azul de marca: links, faixas, ícones */
+
+  /* ---------- Rosas oficiais ---------- */
+  --color-rosa: #e8558e; /* rosa principal: o número 4400, CTAs */
+  --color-rosa-suave: #e07c9c; /* rosa lavado: fios, hachuras */
+  --color-rosa-neon: #fc81b4; /* rosa claro: destaque sobre azul escuro */
+
+  /* ---------- Base ---------- */
+  --color-branco: #f2f2f2; /* branco oficial do manual */
+  --color-papel: #f6f7f9; /* superfície de leitura, levemente azulada */
+  --color-papel-alto: #ffffff;
+  --color-papel-fundo: #e4e9f0; /* recuos, divisórias, trilho da barra */
+
+  /* ---------- Tinta ---------- */
+  --color-tinta: #101a33; /* texto sobre claro */
+  --color-tinta-fraca: #4a5675; /* texto secundário sobre claro */
+  --color-noite-texto: #eef1f7; /* texto sobre azul */
+  --color-noite-fraco: #9fb0d0; /* texto secundário sobre azul */
+
+  /* ---------- Tipografia ----------
+     Duas vozes, definidas no manual de identidade:
+     campanha, Clash Display. Títulos, número, slogan. A voz da rua.
+     leitura, Epilogue. Biografia, propostas, formulário. A voz do consultório. */
+  --font-campanha: 'Clash Display', 'Arial Black', system-ui, sans-serif;
+  --font-leitura: 'Epilogue Variable', system-ui, -apple-system, sans-serif;
+
+  /* ---------- Escala ----------
+     O corpo assenta em 18px. Esta página precisa ser lida sem esforço por um
+     eleitor de 75 anos no celular, é o público que mais usa o SUS e o que
+     mais decide eleição de deputado federal no interior. */
+  --text-mega: clamp(2.6rem, 5.4vw, 4.6rem);
+  --text-alt: clamp(2.1rem, 4.6vw, 3.9rem);
+  --text-medio: clamp(1.5rem, 2.6vw, 2.2rem);
+  --text-sub: clamp(1.15rem, 1.6vw, 1.4rem);
+  --text-corpo: clamp(1.0625rem, 0.35vw + 1rem, 1.1875rem);
+  --text-mini: 0.8125rem;
+
+  /* ---------- Ritmo ---------- */
+  --espaco-secao: clamp(5rem, 10vw, 9rem);
+  --largura-max: 80rem;
+  --largura-leitura: 36rem;
+
+  /* ---------- Movimento ---------- */
+  --ease-saida: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-entrada: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---------- A diagonal ----------
+     O ângulo do logo: as faixas do coração, a sombra do slogan e o corte entre
+     seções usam este mesmo valor. É o que faz a página parecer uma peça só. */
+  --angulo: 45deg;
+}
+
+:root {
+  --scroll-progresso: 0;
+}
+
+/* Clash Display, a fonte de campanha do manual, servida do próprio domínio.
+   Fica aqui, e não na folha-mestre, porque `@font-face` é regra e teria de vir
+   depois de todos os `@import`, o que quebraria a ordem de cascata que a
+   folha-mestre precisa manter. */
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/fonts/ClashDisplay-Variable.woff2') format('woff2');
+  font-weight: 200 700;
+  font-display: swap;
+  font-style: normal;
+}

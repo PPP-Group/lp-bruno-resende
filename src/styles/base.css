@@ -1,0 +1,502 @@
+/* ============================================================================
+   BASE
+   ========================================================================== */
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6.5rem;
+    -webkit-text-size-adjust: 100%;
+
+    /* Firefox, mesma dupla do WebKit abaixo. */
+    scrollbar-color: var(--color-vivo) var(--color-papel-fundo);
+
+    /* As faixas corridas são giradas e escaladas 1,05 para as pontas nunca
+       aparecerem, o que as faz transbordar ~10px de cada lado. `clip` corta
+       isso sem criar contexto de rolagem, que é o que `hidden` faria: com
+       `hidden` aqui, os blocos `position: sticky` do Sobre e do Contato param
+       de grudar. */
+    overflow-x: clip;
+  }
+
+  /* A barra de rolagem é parte da identidade, não do sistema operacional:
+     trilho no azul lavado do papel, alça no azul de marca, rosa ao arrastar. */
+::-webkit-scrollbar {
+    width: 13px;
+    height: 13px;
+  }
+
+::-webkit-scrollbar-track {
+    background: var(--color-papel-fundo);
+  }
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-vivo);
+    border: 3px solid var(--color-papel-fundo);
+    border-radius: 999px;
+  }
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-rosa);
+  }
+
+::-webkit-scrollbar-corner {
+    background: var(--color-papel-fundo);
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-leitura);
+    font-size: var(--text-corpo);
+    line-height: 1.62;
+    color: var(--color-tinta);
+    background: var(--color-papel);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin: 0;
+    line-height: 1.03;
+    text-wrap: balance;
+  }
+
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  img,
+  svg {
+    max-width: 100%;
+    display: block;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  /* Foco generoso: esta página é navegada por teclado e leitor de tela tanto
+     quanto por toque. */
+:focus-visible {
+    outline: 3px solid var(--color-rosa);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+::selection {
+    background: var(--color-rosa);
+    color: #fff;
+  }
+}
+
+/* ============================================================================
+   ESTRUTURA
+   ========================================================================== */
+
+.pagina {
+  position: relative;
+  z-index: 1;
+}
+
+/* O logotipo oficial. A altura vem da variável que o componente define e que
+   qualquer contexto pode reescrever por media query. */
+.logo {
+  height: var(--logo-altura, 3rem);
+  width: auto;
+}
+
+.faixa-conteudo {
+  width: min(100% - 2.25rem, var(--largura-max));
+  margin-inline: auto;
+}
+
+@media (min-width: 1100px) {
+  .faixa-conteudo {
+    width: min(100% - 6rem, var(--largura-max));
+  }
+}
+
+.secao {
+  position: relative;
+  padding-block: var(--espaco-secao);
+}
+
+/* Uma faixa já separou as duas seções. O respiro cheio dos dois lados deixaria
+   um vazio de meia tela em volta dela. */
+.faixa +.secao {
+  padding-top: clamp(3rem, 6vw, 5rem);
+}
+
+.secao:has(+.faixa) {
+  padding-bottom: clamp(3rem, 6vw, 5rem);
+}
+
+/* Seções azuis: o texto claro e o foco mudam junto com o fundo. */
+.secao--azul {
+  background: var(--color-mar);
+  color: var(--color-noite-texto);
+}
+
+.secao--noite {
+  background: var(--color-noite);
+  color: var(--color-noite-texto);
+}
+
+.secao--azul :focus-visible,
+.secao--noite :focus-visible {
+  outline-color: var(--color-rosa-neon);
+}
+
+/* ============================================================================
+   O CORTE DIAGONAL
+   ----------------------------------------------------------------------------
+   O manual desenha tudo em 45°: as faixas dentro do coração, a sombra do
+   slogan, o bloco do "CUIDA E SALVA VIDAS". A página herda esse ângulo nas
+   junções entre seções, é o que costura uma seção na outra em vez de
+   empilhar retângulos.
+
+   O ângulo real do corte é bem menor que 45° porque a hipotenusa aqui tem a
+   largura da tela: o que importa é a direção, sempre a mesma (sobe da esquerda
+   para a direita), não a inclinação literal.
+   ========================================================================== */
+
+.corte {
+  position: relative;
+  height: clamp(3rem, 7vw, 7rem);
+  margin-block: calc(clamp(3rem, 7vw, 7rem) * -1) 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.corte::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--corte-cor, var(--color-mar));
+  clip-path: polygon(0 100%, 100% 0, 100% 100%);
+}
+
+/* Variante que desce da esquerda para a direita, usada quando a seção seguinte
+   é clara. Mantém a mesma direção visual do logo. */
+.corte--invertido::before {
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+
+/* ============================================================================
+   RÓTULOS E TÍTULOS
+   ========================================================================== */
+
+/* Sem tracinho antes do rótulo: a caixa alta e o espacejamento já separam o
+   rótulo do título, e o traço vira só um enfeite repetido em toda seção. */
+.rotulo {
+  display: inline-block;
+  font-family: var(--font-campanha);
+  font-size: var(--text-mini);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-vivo);
+}
+
+.rotulo--claro {
+  color: var(--color-rosa-neon);
+}
+
+.titulo-secao {
+  font-family: var(--font-campanha);
+  font-size: var(--text-alt);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.titulo-secao em {
+  font-style: normal;
+  color: var(--color-rosa);
+}
+
+.chamada-secao {
+  max-width: 46ch;
+  font-size: var(--text-sub);
+  line-height: 1.5;
+  color: var(--color-tinta-fraca);
+}
+
+.secao--azul .chamada-secao,
+.secao--noite .chamada-secao {
+  color: var(--color-noite-fraco);
+}
+
+/* ============================================================================
+   O SLOGAN
+   ----------------------------------------------------------------------------
+   "CUIDA E SALVA VIDAS." tem sombra dupla no manual: uma cópia rosa e uma azul,
+   deslocadas na diagonal. Aqui é texto de verdade, não imagem, então o leitor
+   de tela lê, o buscador indexa e a peça continua nítida em qualquer zoom.
+   ========================================================================== */
+
+.slogan {
+  font-family: var(--font-campanha);
+  font-weight: 700;
+  font-size: var(--slogan-tamanho, clamp(1.75rem, 4.2vw, 3.25rem));
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-branco);
+  text-shadow:
+    0.06em 0.06em 0 var(--color-rosa),
+    0.12em 0.12em 0 var(--color-vivo);
+}
+
+.slogan span {
+  display: block;
+}
+
+/* ============================================================================
+   FAIXA CORRIDA
+   A faixa atravessada na rua. Inclinada no sentido da diagonal do logotipo e
+   escalada um pouco além da tela, para as pontas nunca aparecerem.
+   ========================================================================== */
+
+.faixa {
+  position: relative;
+  z-index: 3;
+  overflow: hidden;
+  padding-block: 0.9rem;
+  rotate: -1.5deg;
+  scale: 1.05;
+  user-select: none;
+  background: var(--color-rosa);
+  color: #fff;
+}
+
+.faixa--azul {
+  background: var(--color-vivo);
+  rotate: 1.2deg;
+}
+
+.faixa--noite {
+  background: var(--color-noite);
+  color: var(--color-branco);
+  rotate: 1.2deg;
+}
+
+.faixa__pista {
+  display: flex;
+  width: max-content;
+  animation: correr 42s linear infinite;
+}
+
+.faixa__grupo {
+  display: flex;
+  flex: none;
+}
+
+.faixa__item {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  padding-right: 1.75rem;
+  font-family: var(--font-campanha);
+  font-size: clamp(1rem, 1.7vw, 1.45rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.faixa__marca {
+  display: grid;
+  place-items: center;
+  opacity: 0.7;
+}
+
+@keyframes correr {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faixa__pista {
+    animation: none;
+  }
+}
+
+/* ============================================================================
+   BOTÕES
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 3.5rem; /* alvo de toque nunca menor que 44px */
+  padding: 0.95rem 1.9rem;
+  font-family: var(--font-campanha);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: 999px;
+  transition:
+    transform 0.2s var(--ease-saida),
+    background 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn--primario {
+  background: var(--color-rosa);
+  color: #fff;
+  box-shadow: 0 6px 0 color-mix(in oklab, var(--color-rosa) 55%, #000);
+}
+
+.btn--primario:hover {
+  background: var(--color-rosa-neon);
+  color: var(--color-noite);
+}
+
+.btn--secundario {
+  background: transparent;
+  color: currentColor;
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.btn--secundario:hover {
+  background: currentColor;
+}
+
+/* O texto do botão vazado inverte para a cor do fundo em que ele está pousado.
+   Cada seção informa esse valor; o padrão serve para o papel claro. */
+.btn--secundario:hover .btn__texto {
+  color: var(--btn-vazado-inverso, var(--color-papel));
+}
+
+.btn--branco {
+  background: var(--color-branco);
+  color: var(--color-mar);
+  box-shadow: 0 6px 0 color-mix(in oklab, var(--color-noite) 45%, transparent);
+}
+
+.btn--branco:hover {
+  background: #fff;
+}
+
+/* ============================================================================
+   CARTÕES
+   ========================================================================== */
+
+.cartao {
+  background: var(--color-papel-alto);
+  border: 1px solid var(--color-papel-fundo);
+  border-radius: 1.25rem;
+}
+
+.cartao--azul {
+  background: color-mix(in oklab, var(--color-branco) 7%, transparent);
+  border-color: color-mix(in oklab, var(--color-branco) 16%, transparent);
+}
+
+/* ============================================================================
+   MOVIMENTO
+   ----------------------------------------------------------------------------
+   Um único gesto no site inteiro: os blocos entram subindo pela diagonal do
+   logo, deslocados para baixo e para a esquerda, na direção das faixas do
+   coração. Repetir esse vetor em toda parte é o que dá unidade ao movimento.
+   ========================================================================== */
+
+.revelar {
+  opacity: 0;
+  transform: translate3d(-14px, 26px, 0);
+  transition:
+    opacity 0.7s var(--ease-saida),
+    transform 0.7s var(--ease-saida);
+  transition-delay: var(--atraso, 0ms);
+}
+
+.revelar[data-visivel='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms!important;
+    animation-iteration-count: 1!important;
+    transition-duration: 0.01ms!important;
+  }
+
+  .revelar {
+    opacity: 1;
+    transform: none;
+  }
+
+  .btn:hover {
+    transform: none;
+  }
+}
+
+/* Acessível a leitores de tela, invisível na tela. */
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Link de pulo, primeiro item focável da página. */
+.pular {
+  position: absolute;
+  left: 1rem;
+  top: -100%;
+  z-index: 100;
+  padding: 0.85rem 1.35rem;
+  background: var(--color-rosa);
+  color: #fff;
+  font-family: var(--font-campanha);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.pular:focus {
+  top: 0;
+}
