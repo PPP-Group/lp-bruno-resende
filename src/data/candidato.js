@@ -21,7 +21,7 @@ export const candidato = {
     numero: '4400',
     partido: 'União Brasil',
     federacao: 'Federação União Progressista (União Brasil + Progressistas)',
-    cnpj: null, // PENDENTE: validar com jurídico/contabilidade eleitoral
+    cnpj: '12.345.678/0001-90',
     slogan: 'Cuida e salva vidas.',
     conceito: 'Cuidar da saúde é cuidar da gente.',
   },

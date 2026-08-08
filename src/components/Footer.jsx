@@ -1,6 +1,6 @@
 import { candidato, secoes, redesAtivas } from '../data/candidato.js'
 import { Logo } from './Logo.jsx'
-import { Marca } from './icons/Icone.jsx'
+import { Icone, Marca } from './icons/Icone.jsx'
 
 export function Footer() {
   const { identidade, rodape } = candidato
@@ -71,8 +71,19 @@ export function Footer() {
         </div>
 
         <div className="rodape__legal">
-          <p>{rodape.disclaimer}</p>
-          <p className="rodape__creditos">{rodape.creditos}</p>
+          <div className="rodape__legal-texto">
+            <p>{rodape.disclaimer}</p>
+            <p className="rodape__creditos">{rodape.creditos}</p>
+          </div>
+
+          {/* Reaproveita a mesma âncora que o menu usa: `iniciarRolagem`
+              (lib/rolagem.js) já intercepta cliques em `a[href^="#"]` e rola
+              suave até lá, com o mesmo recuo do topo fixo. Não precisa de
+              handler novo nem de duplicar essa lógica aqui. */}
+          <a href="#inicio" className="rodape__subir">
+            <Icone nome="seta" tamanho={18} className="rodape__subir-seta" />
+            Voltar ao topo
+          </a>
         </div>
       </div>
     </footer>

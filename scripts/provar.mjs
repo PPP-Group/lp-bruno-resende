@@ -145,15 +145,21 @@ const leitura = await pagina.evaluate(() => ({
 }))
 conferir('Clicar na lista acende um ponto só', leitura.ativos === 1, `${leitura.cidade} ${leitura.valor}`)
 
-/* ---------- 7. Navegação por teclado alcança tudo ---------- */
+/* ---------- 7. Navegação por teclado alcança tudo ----------
+   `button:not([disabled])` sozinho pega até um botão com `tabindex="-1"`, que
+   o teclado pula de propósito (é o caso do véu atrás da gaveta do menu: um
+   alvo só de clique/toque para fechar, tirado da leitura de tela com
+   `aria-hidden`). Sem excluir esses dois casos aqui, o teste cobra rótulo de
+   um elemento que nenhuma tecnologia assistiva chega a anunciar. */
 const foco = await pagina.evaluate(() => {
-  const focaveis = document.querySelectorAll(
-    'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])',
-  )
-  const semRotulo = [...focaveis].filter((el) => {
+  const focaveis = [
+    ...document.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]'),
+  ].filter((el) => el.getAttribute('tabindex') !== '-1' && el.getAttribute('aria-hidden') !== 'true')
+
+  const semRotulo = focaveis.filter((el) => {
     const texto = (el.textContent || '').trim()
     const rotulo = el.getAttribute('aria-label') || el.getAttribute('title')
-    return!texto &&!rotulo && el.tagName !== 'INPUT' && el.tagName !== 'SELECT' && el.tagName !== 'TEXTAREA'
+    return !texto && !rotulo && el.tagName !== 'INPUT' && el.tagName !== 'SELECT' && el.tagName !== 'TEXTAREA'
   })
   return { total: focaveis.length, semRotulo: semRotulo.map((e) => e.className) }
 })

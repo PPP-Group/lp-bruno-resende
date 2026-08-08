@@ -708,14 +708,57 @@
 
 .rodape__legal {
   display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding-top: 1.75rem;
+}
+
+.rodape__legal-texto {
+  display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  padding-top: 1.75rem;
+  min-width: 0;
   font-size: 0.8125rem;
   line-height: 1.5;
   color: var(--color-noite-fraco);
 }
 
-.rodape__legal p {
+.rodape__legal-texto p {
   max-width: 78ch;
+}
+
+/* Botão de voltar ao topo: fica junto do texto legal porque é ali que a
+   pessoa está depois de ler o rodapé inteiro, o ponto mais distante do topo
+   em toda a página. */
+.rodape__subir {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.75rem;
+  padding: 0.6rem 1.15rem;
+  font-family: var(--font-campanha);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  color: var(--color-noite-texto);
+  background: color-mix(in oklab, var(--color-branco) 10%, transparent);
+  border-radius: 999px;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    transform 0.2s var(--ease-saida);
+}
+
+.rodape__subir:hover {
+  color: #fff;
+  background: var(--color-rosa);
+  transform: translateY(-2px);
+}
+
+.rodape__subir-seta {
+  rotate: -90deg;
 }

@@ -188,10 +188,16 @@
   box-shadow: 0 0 0 3px var(--color-rosa), 0 0 0 7px color-mix(in oklab, var(--color-rosa) 25%, transparent);
 }
 
+/* O deslocamento líquido (`left` mais `margin-left`) precisa dar o mesmo
+   -1,75rem que a regra-base já usa no mobile: é essa relação, mantida em
+   qualquer largura, que faz o centro da bolinha cair exatamente sobre o
+   centro da linha. Com `margin-left: 11rem` (líquido -1,5rem) a bolinha
+   ficava 4px à direita da linha, medido: a linha corta a borda do círculo em
+   vez do meio dele. Não é diferença de olho, é conta errada. */
 @media (min-width: 800px) {
   .parada::before {
     left: -12.5rem;
-    margin-left: 11rem;
+    margin-left: 10.75rem;
   }
 }
 
