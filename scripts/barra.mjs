@@ -22,12 +22,19 @@ if (!folha) {
 
 const css = readFileSync(join(PASTA, folha), 'utf-8')
 
+/* O minificador reescreve `background: transparent` como `background: 0 0`,
+   equivalente e mais curto. As duas formas contam como a regra presente. */
+const SEM_COR = '(?:transparent|0 0)'
+
 const esperado = [
   ['WebKit, largura', /::-webkit-scrollbar\{width:13px/],
-  ['WebKit, trilho na cor de recuo', /::-webkit-scrollbar-track\{background:var\(--color-papel-fundo\)/],
-  ['WebKit, alça no azul de marca', /::-webkit-scrollbar-thumb\{background:var\(--color-vivo\)/],
-  ['WebKit, alça em rosa ao passar', /::-webkit-scrollbar-thumb:hover\{background:var\(--color-rosa\)/],
-  ['Firefox, mesma dupla de cores', /scrollbar-color:var\(--color-vivo\) var\(--color-papel-fundo\)/],
+  ['WebKit, trilho invisível', new RegExp(`::-webkit-scrollbar-track\\{background:${SEM_COR}\\}`)],
+  ['WebKit, alça no azul de marca', /::-webkit-scrollbar-thumb\{background-color:var\(--color-vivo\)/],
+  ['WebKit, alça em rosa ao passar', /::-webkit-scrollbar-thumb:hover\{background-color:var\(--color-rosa\)/],
+  ['WebKit, corner invisível', new RegExp(`::-webkit-scrollbar-corner\\{background:${SEM_COR}\\}`)],
+  ['WebKit, track-piece invisível', new RegExp(`::-webkit-scrollbar-track-piece\\{background:${SEM_COR}\\}`)],
+  ['WebKit, setas ocultas', /::-webkit-scrollbar-button\{[^}]*display:none/],
+  ['Firefox, trilho invisível', /scrollbar-color:var\(--color-vivo\) transparent/],
 ]
 
 let falhas = 0

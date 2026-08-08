@@ -73,6 +73,10 @@
 
 :root {
   --scroll-progresso: 0;
+
+  /* O Nav mede a própria altura em JS e sobrescreve isto. O valor aqui só vale
+     no instante antes do primeiro efeito rodar, e sem JS. */
+  --nav-altura: 4.6rem;
 }
 
 /* Clash Display, a fonte de campanha do manual, servida do próprio domínio.

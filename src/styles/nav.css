@@ -8,12 +8,22 @@
   left: 0;
   right: 0;
   z-index: 50;
+}
+
+/* O fundo, o desfoque e a sombra ao descer ficam neste wrapper, não no
+   <header>. `backdrop-filter` cria um novo container de posição para
+   qualquer filho `position: fixed`, e a gaveta do menu é um desses filhos.
+   Com o filtro no <header>, a gaveta passava a se posicionar dentro da caixa
+   de ~75px da barra, e não da tela inteira: só a tira de cima aparecia ao
+   abrir o menu depois de rolar a página. Aqui, isolado num wrapper que não é
+   ancestral da gaveta, o filtro não tem esse efeito colateral. */
+.nav__barra {
   transition:
     background 0.35s var(--ease-saida),
     box-shadow 0.35s var(--ease-saida);
 }
 
-.nav[data-descido='true'] {
+.nav[data-descido='true'] .nav__barra {
   background: color-mix(in oklab, var(--color-papel-alto) 92%, transparent);
   backdrop-filter: blur(14px);
   box-shadow: 0 1px 0 var(--color-papel-fundo);
@@ -146,6 +156,22 @@
    GAVETA (mobile)
    ========================================================================== */
 
+/* Fechada, a gaveta fica fora da tela (`translateX(100%)`) E com
+   `visibility: hidden`. Com só o `translateX`, ela continuaria acessível por
+   teclado e leitor de tela mesmo fora da tela; com `hidden` puro (o atributo
+   HTML), ela viraria `display: none` no exato instante em que a página
+   também manda abrir, e uma propriedade não pode fazer transição partindo de
+   um estado que nunca chegou a ser desenhado. Foi assim que a versão
+   anterior ficava sem animação nenhuma: o painel ia de "nem existe" direto
+   para "aberto", num frame só.
+
+   `visibility` resolve os dois problemas de uma vez: sai do fluxo de foco e
+   de leitura quando fechada (como o `hidden`), mas ainda é uma propriedade
+   que transiciona, então o `translateX` sempre tem um quadro visível de onde
+   partir. O atraso de `visibility` é o que faz a diferença entre abrir e
+   fechar: ao abrir, ela fica visível já no primeiro instante, para o
+   deslizar aparecer inteiro; ao fechar, ela só sai do fluxo depois que o
+   deslizar termina, para o painel não sumir de repente no meio do gesto. */
 .gaveta {
   position: fixed;
   inset: 0 0 0 auto;
@@ -156,15 +182,25 @@
   background: var(--color-mar);
   color: var(--color-noite-texto);
   transform: translateX(100%);
-  transition: transform 0.4s var(--ease-saida);
+  visibility: hidden;
+  transition:
+    transform 0.4s var(--ease-saida),
+    visibility 0s linear 0.4s;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
 .gaveta[data-aberto='true'] {
   transform: none;
+  visibility: visible;
+  transition:
+    transform 0.4s var(--ease-saida),
+    visibility 0s linear 0s;
 }
 
+/* O véu por trás do painel. Fica sempre no DOM (em vez de montar e desmontar
+   junto com o clique) só para poder desvanecer: sem isso, ele apareceria e
+   sumiriam de um corte só, brigando com o painel que agora desliza suave. */
 .gaveta__veu {
   position: fixed;
   inset: 0;
@@ -172,6 +208,19 @@
   background: color-mix(in oklab, var(--color-noite) 65%, transparent);
   backdrop-filter: blur(3px);
   cursor: default;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.4s var(--ease-saida),
+    visibility 0s linear 0.4s;
+}
+
+.gaveta__veu[data-aberto='true'] {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.4s var(--ease-saida),
+    visibility 0s linear 0s;
 }
 
 .gaveta__topo {
@@ -198,6 +247,12 @@
   gap: 0.25rem;
 }
 
+/* Os links entram em cascata: cada um com um pouco mais de atraso que o
+   anterior (`--atraso`, montado em Nav.jsx pela posição na lista), então o
+   olho lê a lista se formando de cima para baixo, no mesmo instante em que o
+   painel desliza para dentro. Fechar não desfaz a cascata em ordem reversa
+   de propósito: com o painel inteiro saindo de tela em 0,4s, um recuo item a
+   item passaria despercebido e só atrasaria a sensação de resposta ao toque. */
 .gaveta__link {
   display: flex;
   align-items: baseline;
@@ -208,7 +263,18 @@
   font-weight: 600;
   text-decoration: none;
   border-radius: 0.9rem;
-  transition: background 0.2s, color 0.2s;
+  opacity: 0;
+  transform: translateX(1.5rem);
+  transition:
+    background 0.2s,
+    color 0.2s,
+    opacity 0.4s var(--ease-saida) var(--atraso, 0s),
+    transform 0.4s var(--ease-saida) var(--atraso, 0s);
+}
+
+.gaveta[data-aberto='true'] .gaveta__link {
+  opacity: 1;
+  transform: none;
 }
 
 .gaveta__link[data-ativo='true'] {

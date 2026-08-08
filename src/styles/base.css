@@ -12,8 +12,9 @@
     scroll-padding-top: 6.5rem;
     -webkit-text-size-adjust: 100%;
 
-    /* Firefox, mesma dupla do WebKit abaixo. */
-    scrollbar-color: var(--color-vivo) var(--color-papel-fundo);
+    /* Firefox, mesma regra do WebKit abaixo: trilho invisível, alça na cor
+       de marca. */
+    scrollbar-color: var(--color-vivo) transparent;
 
     /* As faixas corridas são giradas e escaladas 1,05 para as pontas nunca
        aparecerem, o que as faz transbordar ~10px de cada lado. `clip` corta
@@ -23,29 +24,43 @@
     overflow-x: clip;
   }
 
-  /* A barra de rolagem é parte da identidade, não do sistema operacional:
-     trilho no azul lavado do papel, alça no azul de marca, rosa ao arrastar. */
+  /* A barra de rolagem é só a pílula: nada mais. Sem trilho, sem canto, sem
+     setas nas pontas, só a alça na cor de marca, rosa ao arrastar. Qualquer
+     outra peça pintada (trilho, canto, seta) desenharia uma faixa ou um botão
+     sólido ao lado do conteúdo, competindo com ele em toda seção da página.
+
+     `border` transparente + `background-clip: padding-box` afina a alça sem
+     depender de uma cor de trilho visível para dar esse respiro: o miolo pinta
+     só até a borda do padding, e a borda em si fica sem tinta nenhuma. */
 ::-webkit-scrollbar {
     width: 13px;
     height: 13px;
   }
 
-::-webkit-scrollbar-track {
-    background: var(--color-papel-fundo);
+::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-track-piece,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--color-vivo);
-    border: 3px solid var(--color-papel-fundo);
+    background-color: var(--color-vivo);
+    background-clip: padding-box;
+    border: 3px solid transparent;
     border-radius: 999px;
   }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-rosa);
+    background-color: var(--color-rosa);
   }
 
-::-webkit-scrollbar-corner {
-    background: var(--color-papel-fundo);
+/* As setas de avançar/recuar um passo, nas pontas da barra. Poucos navegadores
+     ainda desenham isso por padrão, mas onde desenham, ficam invisíveis: são
+     um controle do sistema operacional, não da identidade da campanha. */
+::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
   }
 
   body {
@@ -466,6 +481,17 @@
 
   .btn:hover {
     transform: none;
+  }
+
+  /* A duração vira quase zero acima, mas `transition-delay` é outra
+     propriedade e o `!important` genérico não alcança ela. Sem isto, quem
+     pede menos movimento ainda esperaria os 0,4s de atraso da gaveta (o
+     tempo que, em movimento normal, dá pro painel terminar de deslizar antes
+     de sair do fluxo de foco) mesmo com a transição em si já instantânea. */
+  .gaveta,
+  .gaveta__veu,
+  .gaveta__link {
+    transition-delay: 0s!important;
   }
 }
 

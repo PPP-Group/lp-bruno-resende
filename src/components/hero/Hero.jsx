@@ -10,9 +10,9 @@ import { Icone } from '../icons/Icone.jsx'
    O que a página acrescenta é o que papel não faz: o selo gira, a faixa corre
    na diagonal por cima da borda de baixo, e os botões ficam logo embaixo.
 
-   O CNPJ que aparecia no canto superior direito da arte era fictício, de
-   exemplo de aplicação. Foi apagado na geração do JPG. O CNPJ real entra no
-   rodapé, por `identidade.cnpj`, quando a campanha informar. */
+   O CNPJ que aparecia no canto superior direito da arte era o número de
+   exemplo do manual, sem relação com a peça em si. Foi apagado na geração do
+   JPG. O CNPJ da campanha entra por texto, no rodapé, via `identidade.cnpj`. */
 export function Hero() {
   const { identidade, hero } = candidato
 
@@ -23,10 +23,15 @@ export function Hero() {
           className="hero__arte"
           src="/assets/hero-pg10.jpg"
           alt={`${identidade.nome}, ${identidade.cargo} pelo ${identidade.estado}, número ${identidade.numero}. Cuida e salva vidas.`}
-          width="6365"
-          height="3240"
+          width="4500"
+          height="2292"
           decoding="async"
+          fetchpriority="high"
         />
+
+        {/* Pousado exatamente sobre o selo impresso na arte (coordenadas em
+            hero.css). É o único movimento que o papel não tem. */}
+        <img className="hero__selo" src="/assets/selo.svg" alt="" width="514" height="514" />
 
         <FaixaCorrida className="hero__faixa" />
       </div>
@@ -38,19 +43,6 @@ export function Hero() {
         </div>
 
         <div className="hero__acao">
-          <div className="hero__botoes">
-            <a className="btn btn--primario" href={hero.ctaPrimario.href}>
-              {hero.ctaPrimario.texto}
-            </a>
-            <a
-              className="btn btn--secundario"
-              href={hero.ctaSecundario.href}
-              style={{ '--btn-vazado-inverso': 'var(--color-mar)' }}
-            >
-              <span className="btn__texto">{hero.ctaSecundario.texto}</span>
-            </a>
-          </div>
-
           <a className="urna-chip" href="#urna">
             <span className="urna-chip__rotulo">Seu voto para deputado federal</span>
             <strong className="urna-chip__numero">
@@ -65,6 +57,19 @@ export function Hero() {
               Ensaiar o voto
             </span>
           </a>
+
+          <div className="hero__botoes">
+            <a
+              className="btn btn--secundario"
+              href={hero.ctaSecundario.href}
+              style={{ '--btn-vazado-inverso': 'var(--color-mar)' }}
+            >
+              <span className="btn__texto">{hero.ctaSecundario.texto}</span>
+            </a>
+            <a className="btn btn--primario" href={hero.ctaPrimario.href}>
+              {hero.ctaPrimario.texto}
+            </a>
+          </div>
         </div>
       </div>
 

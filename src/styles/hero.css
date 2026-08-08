@@ -4,12 +4,16 @@
    O cartaz oficial da campanha ocupa o topo inteiro. O fundo da seção é o mesmo
    azul do fundo da arte, então o cartaz assenta na página em vez de parecer uma
    figura colada sobre outra cor.
-   ========================================================================== */
+
+   O espaço acima do cartaz é exatamente a altura do menu (`--nav-altura`,
+   medida em JS por `Nav.jsx`), nem mais. Com uma folga maior que o menu, sobra
+   uma faixa da cor de fundo entre a barra e a imagem, e a página parece ter
+   dois topos em vez de um. */
 
 .hero {
   position: relative;
   isolation: isolate;
-  padding-top: clamp(5.5rem, 9vw, 7rem);
+  padding-top: var(--nav-altura);
   color: var(--color-noite-texto);
   background: linear-gradient(168deg, var(--color-mar) 0%, var(--color-royal) 62%, var(--color-vivo) 100%);
 }
@@ -20,27 +24,18 @@
 
 /* ---------- O cartaz ----------
    As coordenadas do selo foram medidas na arte original (4500 × 2292 px): anel
-   externo de 625px de diâmetro, centro em (2384, 1082). Daí saem as
-   porcentagens abaixo. O diâmetro do selo que gira é um fio maior que o
-   impresso, para cobri-lo por inteiro e não deixar borda dupla aparecendo.
+   externo de 514px de diâmetro, centro em (4011, 1822). Daí saem as
+   porcentagens abaixo, e por serem porcentagem valem em qualquer largura de
+   tela: a mesma arte inteira é usada do celular ao desktop, sem recorte.
 
-   Se a arte for trocada, estas quatro medidas têm de ser refeitas. */
+   Se a arte for trocada, ou recortada de outro jeito, estas três medidas têm
+   de ser refeitas, senão o selo que gira sai de cima do impresso. */
 
 .hero__cartaz {
   position: relative;
-  --selo-x: 52.99%;
-  --selo-y: 47.23%;
-  --selo-d: 14.6%;
-}
-
-@media (max-width: 700px) {
-  .hero__cartaz {
-    /* O recorte de celular vai de 0 a 2780px da arte, então o mesmo selo cai
-       em outra porcentagem. */
-    --selo-x: 85.77%;
-    --selo-y: 47.23%;
-    --selo-d: 23.6%;
-  }
+  --selo-x: 89.13%;
+  --selo-y: 79.49%;
+  --selo-d: 11.42%;
 }
 
 .hero__arte {
@@ -54,7 +49,9 @@
   position: absolute;
   left: var(--selo-x);
   top: var(--selo-y);
-  width: var(--selo-d);
+  /* 6% maior que a medida real: cobre o anel impresso por inteiro em vez de
+     deixar uma fatia dele espiando atrás do que gira. */
+  width: calc(var(--selo-d) * 1.06);
   height: auto;
   translate: -50% -50%;
   animation: selo-gira 26s linear infinite;
@@ -92,24 +89,27 @@
 
 /* ---------- Abaixo do cartaz ---------- */
 
+/* Flex em vez de grid: o bloco de ações (chip + botões) precisa da sua
+   largura de conteúdo inteira para os dois botões caberem lado a lado. Numa
+   coluna de grid de largura fixa, a soma dos dois botões não cabia e eles
+   empilhavam. Com `flex: 0 0 auto`, o bloco de ações fica do tamanho do seu
+   conteúdo e é o texto (`hero__dizer`, que pode quebrar linha) quem cede
+   espaço — e se não sobrar largura nenhuma, o bloco inteiro desce para a
+   linha de baixo em vez de espremer os botões. */
 .hero__abaixo {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
   gap: clamp(1.75rem, 3.5vw, 3rem);
   padding-top: clamp(3rem, 5vw, 4rem);
   padding-bottom: clamp(2.5rem, 4vw, 3.5rem);
-}
-
-@media (min-width: 900px) {
-  .hero__abaixo {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    align-items: center;
-  }
 }
 
 .hero__dizer {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  flex: 1 1 320px;
 }
 
 .hero__titulo {
@@ -129,17 +129,15 @@
   color: color-mix(in oklab, var(--color-branco) 84%, transparent);
 }
 
+/* `flex-start` alinha o começo do chip do número com o começo do primeiro
+   botão da linha — os dois começam na mesma borda esquerda do bloco. */
 .hero__acao {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 1.25rem;
-}
-
-@media (min-width: 900px) {
-  .hero__acao {
-    align-items: flex-end;
-  }
+  flex: 0 0 auto;
+  max-width: 100%;
 }
 
 .hero__botoes {
