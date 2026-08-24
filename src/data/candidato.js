@@ -325,17 +325,6 @@ export const candidato = {
   },
 
   /* --------------------------------------------------------------------------
-     05 · URNA, O ENSAIO DO VOTO
-     ------------------------------------------------------------------------ */
-  urna: {
-    rotulo: 'Ensaie seu voto',
-    titulo: 'São quatro toques. 4-4-0-0.',
-    texto:
-      'Deputado federal é o primeiro voto que a urna pede. Digite o número aqui e confirme. Assim, no dia da eleição, seu dedo já sabe o caminho.',
-    aviso: 'Simulação para treino. Esta tela não reproduz a urna oficial da Justiça Eleitoral.',
-  },
-
-  /* --------------------------------------------------------------------------
      06 · CONTATO / PARTICIPE
      ------------------------------------------------------------------------ */
   contato: {

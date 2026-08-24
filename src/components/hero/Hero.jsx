@@ -1,6 +1,5 @@
 import { candidato } from '../../data/candidato.js'
 import { FaixaCorrida } from '../FaixaCorrida.jsx'
-import { Icone } from '../icons/Icone.jsx'
 
 /* O herói é o cartaz oficial da campanha, e não uma remontagem dele.
    A arte já traz nome, cargo, número, slogan, selo, o mapa do Estado com fotos
@@ -43,7 +42,7 @@ export function Hero() {
         </div>
 
         <div className="hero__acao">
-          <a className="urna-chip" href="#urna">
+          <a className="urna-chip" href="#propostas">
             <span className="urna-chip__rotulo">Seu voto para deputado federal</span>
             <strong className="urna-chip__numero">
               {identidade.numero.split('').map((d, i) => (
@@ -52,10 +51,6 @@ export function Hero() {
                 </span>
               ))}
             </strong>
-            <span className="urna-chip__treino">
-              <Icone nome="tocar" tamanho={18} />
-              Ensaiar o voto
-            </span>
           </a>
 
           <div className="hero__botoes">
