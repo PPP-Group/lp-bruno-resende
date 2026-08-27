@@ -76,6 +76,16 @@
   .eixo__icone {
     display: none;
   }
+
+  /* Some o ícone e sobram três itens no grid, não quatro — mas
+     `grid-template-columns` (regra-base) continua reservando quatro trilhas.
+     Sem ícone, o texto ocupa a 2ª trilha (`auto`, que mede pelo conteúdo, não
+     pelo espaço sobrando) e o sinal cai na 3ª, que ninguém mais pede largura
+     nenhuma. O sinal não encolhe — é um círculo de tamanho fixo — então ele
+     transborda a trilha e o botão, e é o pedaço que saía cortado do cartão. */
+  .eixo__botao {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
 }
 
 .eixo__dizer {

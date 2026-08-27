@@ -53,10 +53,19 @@ export function VideoModal({ videos, indice, perfil, aoFechar, aoTrocar }) {
     fecharRef.current?.focus()
 
     const anterior = document.body.style.overflow
+    const anteriorHtml = document.documentElement.style.overflow
     document.body.style.overflow = 'hidden'
+    /* `html` tem `overflow-x: clip` (base.css) e isso é um valor explícito, não
+       o `visible` inicial: trava a propagação do `overflow: hidden` do `body`
+       para o elemento raiz, que é quem de fato rola. Sem esta linha o `html`
+       segue com `overflow-y: visible` e a barra de rolagem nativa da página
+       continua desenhada atrás do modal — e, por ocupar espaço de layout,
+       descentraliza a caixa `position: fixed` em relação à janela. */
+    document.documentElement.style.overflow = 'hidden'
 
     return () => {
       document.body.style.overflow = anterior
+      document.documentElement.style.overflow = anteriorHtml
       anteriorRef.current?.focus?.()
     }
   }, [])

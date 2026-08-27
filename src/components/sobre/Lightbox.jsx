@@ -15,7 +15,14 @@ export function Lightbox({ itens, indice, aoFechar, aoTrocar }) {
     fecharRef.current?.focus()
 
     const anterior = document.body.style.overflow
+    const anteriorHtml = document.documentElement.style.overflow
     document.body.style.overflow = 'hidden'
+    /* Mesma trava do VideoModal: `html` tem `overflow-x: clip` explícito em
+       base.css, o que impede o `overflow: hidden` do `body` de se propagar
+       para o elemento raiz. Sem travar o `html` também, a barra de rolagem
+       nativa da página segue visível atrás do véu e rouba largura de layout
+       da caixa `position: fixed`, descentralizando-a. */
+    document.documentElement.style.overflow = 'hidden'
 
     const aoTeclar = (e) => {
       if (e.key === 'Escape') aoFechar()
@@ -27,6 +34,7 @@ export function Lightbox({ itens, indice, aoFechar, aoTrocar }) {
     return () => {
       window.removeEventListener('keydown', aoTeclar)
       document.body.style.overflow = anterior
+      document.documentElement.style.overflow = anteriorHtml
       anteriorRef.current?.focus?.()
     }
   })
