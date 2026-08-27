@@ -723,7 +723,11 @@ button.video:hover .video__acao svg {
   z-index: 90;
   display: grid;
   place-items: center;
+  /* Arredondado pelo mesmo motivo da caixa: `3vw` numa janela de 1280px dá
+     38,4px, e é esse padding fracionário que deixava a caixa — e a camada
+     composta do player dentro dela — parada em meio pixel. */
   padding: clamp(0.75rem, 3vw, 2.5rem);
+  padding: round(down, clamp(0.75rem, 3vw, 2.5rem), 1px);
 }
 
 .videomodal__veu {
@@ -744,8 +748,16 @@ button.video:hover .video__acao svg {
   grid-template-rows: auto minmax(0, 1fr);
   width: 100%;
   /* 94vh, e não 90, para dar mais altura ao vídeo: o objetivo é que o reel
-     bata a coluna de cima a baixo, não sobrar véu de respiro em volta dele. */
+     bata a coluna de cima a baixo, não sobrar véu de respiro em volta dele.
+
+     `round(down, …, 1px)` corta a fração: 94vh numa janela de 720px dá 676,8px,
+     e altura fracionária numa caixa que contém uma camada composta (o player,
+     logo abaixo) faz o navegador reencaixar essa camada a cada quadro — é o
+     tremor da coluna do vídeo, que aparecia mesmo com o vídeo parado. A linha
+     sem `round()` fica antes como reserva para navegador que não conheça a
+     função: a regra inválida é descartada e vale a de cima. */
   height: min(94vh, 53rem);
+  height: round(down, min(94vh, 53rem), 1px);
   overflow: hidden;
   border-radius: 1.25rem;
   background: var(--color-papel-alto);
@@ -767,20 +779,26 @@ button.video:hover .video__acao svg {
    cabeçalho, a legenda embutida no vídeo e a barra de curtidas do embed, que
    não escalam com a largura.
 
-   Daí a conta ao contrário: a largura que faz o embed bater exatamente a
-   altura da caixa é `(altura − 13rem) ÷ 1,25`. Com a caixa no teto de 53rem
-   isso dá 32rem, e é por isso que os dois números aparecem juntos abaixo — um
-   é a caixa no limite de altura, o outro é o vídeo preenchendo esse limite
-   sem sobrar nem faltar véu. Para a caixa no teto de altura por `vh`, a mesma
-   conta dá `75,2vh − 10,4rem`. Errando a conta nada quebra: a coluna do
-   player rola.
+   Daí a conta ao contrário: a largura que faz o embed bater a altura da caixa
+   é `(altura − 13rem) ÷ 1,25`. Mas bater exato é justamente o que não se quer:
+   o embed ficava do mesmo tamanho da coluna, na fronteira em que a barra de
+   rolagem aparece e some, e cada troca de barra muda a largura da coluna em
+   15px. Por isso a conta reserva 12px de folga — `(altura − 13rem − 12px) ÷
+   1,25` — e o embed sempre cabe com sobra. Com a caixa no teto de 53rem isso
+   dá 31,4rem; para a caixa no teto de altura por `vh`, `75,2vh − 11rem`.
+   Errando a conta nada quebra: a coluna do player rola.
+
+   `round(down, …, 1px)` pelo mesmo motivo da altura da caixa: `75,2vh` numa
+   janela de 720px dá 375,04px, e a fração fazia a camada composta do player
+   reencaixar a cada quadro. A linha sem `round()` fica antes como reserva.
 
    Os 46% são o terceiro limite, para a janela estreita: sem eles, num monitor
    de 820px de largura e bem alto o vídeo tomaria a coluna toda e não sobraria
    espaço legível para a legenda. */
 @media (min-width: 820px) {
   .videomodal__caixa {
-    grid-template-columns: minmax(0, min(75.2vh - 10.4rem, 32rem, 46%)) minmax(0, 1fr);
+    grid-template-columns: minmax(0, min(75.2vh - 11rem, 31.4rem, 46%)) minmax(0, 1fr);
+    grid-template-columns: minmax(0, round(down, min(75.2vh - 11rem, 31.4rem, 46%), 1px)) minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
   }
 }
@@ -794,12 +812,20 @@ button.video:hover .video__acao svg {
 
    O fundo é o tom de recuo do site, não o azul da marca: o cartão do embed é
    branco e sobre o azul escuro ele parece uma peça solta que sobrou ali. */
+/* `translateZ(0)` força o navegador a compor este bloco numa camada de GPU
+   própria, separada da caixa que o recorta em cantos arredondados. Sem isto,
+   o vídeo (que é decodificado por hardware, dentro de um iframe de outro
+   domínio) tremia e rasgava: o Chromium tenta desenhar a máscara do recorte
+   arredondado por cima do plano de vídeo a cada quadro, e em várias placas de
+   vídeo essa composição falha visivelmente. Isolar a camada evita a disputa. */
 .videomodal__player {
   display: grid;
   align-content: center;
   background: var(--color-papel-fundo);
   overflow-y: auto;
+  overflow-anchor: none;
   overscroll-behavior: contain;
+  transform: translateZ(0);
 }
 
 .videomodal__player iframe {
