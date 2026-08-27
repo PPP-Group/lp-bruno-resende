@@ -21,7 +21,7 @@ export const candidato = {
     numero: '4400',
     partido: 'União Brasil',
     federacao: 'Federação União Progressista (União Brasil + Progressistas)',
-    cnpj: '12.345.678/0001-90',
+    cnpj: '68.464.782/0001-53',
     slogan: 'Cuida e salva vidas.',
     conceito: 'Cuidar da saúde é cuidar da gente.',
   },
@@ -118,18 +118,74 @@ export const candidato = {
       { legenda: 'Assembleia Legislativa do Espírito Santo', src: null },
     ],
 
+    /* VÍDEOS, reels do perfil oficial (@drbrunoresende_). O cartão mostra
+       a capa baixada para /public/assets/videos/ e o modal carrega o próprio
+       player do Instagram, que é o que mantém a métrica no perfil e evita
+       hospedar vídeo de campanha em servidor nosso.
+
+       `codigo` é o shortcode da URL (instagram.com/p/CODIGO/). Trocar o vídeo
+       é trocar o código e a capa: nada mais no componente depende disto.
+       Entrada sem `codigo` continua na página no estado "em breve". */
     videosTitulo: 'Em vídeo',
+    videosPerfil: 'https://www.instagram.com/drbrunoresende_/',
     videos: [
-      { titulo: 'Da roça à medicina e à política', descricao: 'A trajetória, contada por ele.', href: null },
       {
-        titulo: 'Hospital do Câncer de Cachoeiro',
-        descricao: 'A origem do projeto, o papel do mandato e o estágio da obra.',
-        href: null,
+        codigo: 'DcWzmKlh3dV',
+        titulo: 'Política é compromisso',
+        descricao: 'A promessa que ele carrega desde que entrou na vida pública.',
+        capa: '/assets/videos/DcWzmKlh3dV.jpg',
+        local: 'Reunião com moradores de Itapemirim',
+        legenda: [
+          'Política não pode ser negócio. Política precisa ser compromisso com as pessoas.',
+          'Neste sábado à tarde, durante uma reunião com moradores de Itapemirim, eu compartilhei uma promessa que carrego comigo desde que decidi entrar na vida pública: “Não permita que o dinheiro da corrupção construa um tijolo na sua casa.”',
+          'Porque a corrupção pode parecer distante, mas suas consequências chegam à vida de quem mais precisa. Quando alguém vende o voto, não está vendendo apenas uma escolha. Pode estar abrindo mão de uma vaga de UTI para a própria mãe, de um hospital para atender o filho, de um emprego digno ou de serviços públicos que deveriam estar disponíveis para todos.',
+          'Quatro anos depois de assumir um mandato, eu posso olhar para trás e afirmar: o dinheiro da corrupção nunca entrou na minha casa. E essa continuará sendo a minha maior promessa.',
+        ],
       },
       {
-        titulo: 'Prestação de contas',
-        descricao: 'Leis aprovadas, recursos destinados e municípios alcançados.',
-        href: null,
+        codigo: 'DcOeVezxJlT',
+        titulo: 'Hospital do Câncer de Cachoeiro',
+        descricao: 'A obra por dentro: leitos, UTIs, radioterapia e hemodiálise.',
+        capa: '/assets/videos/DcOeVezxJlT.jpg',
+        local: 'Canteiro de obras, Cachoeiro de Itapemirim',
+        legenda: [
+          'Hoje, talvez você enxergue apenas máquinas, movimentação e muita gente trabalhando. Mas o que está sendo construído aqui é muito maior.',
+          'Estamos construindo um grande Hospital do Câncer, que vai transformar vidas e mudar a história da saúde em todo o Espírito Santo. Um hospital completo, com leitos, UTIs, uma nova e moderna radioterapia e um setor de hemodiálise preparado para atender quem mais precisa.',
+          'Mas, acima de tudo, estamos construindo um lugar para cuidar de pessoas. Onde cada família poderá encontrar segurança e conforto em um dos momentos mais difíceis da vida. E essa transformação também vai gerar empregos, movimentar a economia e fortalecer toda a nossa região.',
+          'Porque o que estamos construindo aqui não é apenas um hospital. É cuidado. É dignidade. É esperança.',
+        ],
+      },
+      {
+        codigo: 'DcG__83RNEP',
+        titulo: 'Comitê de portas abertas',
+        descricao: 'A abertura do comitê, onde a caminhada passa a ter endereço.',
+        capa: '/assets/videos/DcG__83RNEP.jpg',
+        local: 'Abertura do comitê, domingo 16',
+        legenda: [
+          'Neste domingo, 16, abrimos oficialmente as portas do nosso comitê: um espaço que nasce para reunir pessoas, ouvir ideias e fortalecer um projeto construído com diálogo, trabalho e, acima de tudo, com a participação de cada um.',
+          'Mais do que um endereço, nosso comitê é um ponto de encontro para quem acredita que podemos fazer mais pelo Espírito Santo.',
+          'A caminhada começou. E quero você junto comigo nessa jornada. Vamos juntos!',
+        ],
+      },
+      {
+        codigo: 'DcHrv4zx2MB',
+        titulo: 'Vamos surpreender de novo',
+        descricao: 'O recado que abre a caminhada por uma vaga em Brasília.',
+        capa: '/assets/videos/DcHrv4zx2MB.jpg',
+        local: 'Espírito Santo',
+        legenda: ['Nós vamos surpreender esse estado de novo.'],
+      },
+      /* O quinto é o único que o celular não mostra: a grade fecha em quatro
+         para caber em duas linhas de dois, e este é o de legenda mais curta,
+         o que menos perde ao ficar de fora. Ver `.videos__grade` em
+         sobre.css. */
+      {
+        codigo: 'DcLgdTtR8iq',
+        titulo: 'Dr. Bruno chegou',
+        descricao: 'A carreata na rua, à noite, com a campanha na porta de casa.',
+        capa: '/assets/videos/DcLgdTtR8iq.jpg',
+        local: 'Carreata pelo interior do Estado',
+        legenda: ['Doutor Bruno chegou!'],
       },
     ],
 
@@ -322,17 +378,6 @@ export const candidato = {
       { prefixo: '', valor: 90, sufixo: '', descricao: 'destinações para saúde, assistência, esporte, idosos e agro' },
       { prefixo: '', valor: 45, sufixo: '%', descricao: 'do total direcionado a saúde e à pessoa com deficiência' },
     ],
-  },
-
-  /* --------------------------------------------------------------------------
-     05 · URNA, O ENSAIO DO VOTO
-     ------------------------------------------------------------------------ */
-  urna: {
-    rotulo: 'Ensaie seu voto',
-    titulo: 'São quatro toques. 4-4-0-0.',
-    texto:
-      'Deputado federal é o primeiro voto que a urna pede. Digite o número aqui e confirme. Assim, no dia da eleição, seu dedo já sabe o caminho.',
-    aviso: 'Simulação para treino. Esta tela não reproduz a urna oficial da Justiça Eleitoral.',
   },
 
   /* --------------------------------------------------------------------------

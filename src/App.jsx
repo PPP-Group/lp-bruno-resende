@@ -12,7 +12,6 @@ import { Hero } from './components/hero/Hero.jsx'
 import { Sobre } from './components/sobre/Sobre.jsx'
 import { Propostas } from './components/propostas/Propostas.jsx'
 import { Conquistas } from './components/conquistas/Conquistas.jsx'
-import { Urna } from './components/urna/Urna.jsx'
 import { Contato } from './components/contato/Contato.jsx'
 
 export default function App() {
@@ -43,10 +42,6 @@ export default function App() {
         <Propostas />
 
         <Conquistas />
-
-        {/* Depois das provas, o ensaio: quem acabou de ver o que foi feito é
-            quem está mais disposto a decorar o número. */}
-        <Urna />
 
         <FaixaCorrida frases={conquistas.leis.map((l) => `${l.titulo} · ${l.lei}/${l.ano}`)} />
         <Contato />

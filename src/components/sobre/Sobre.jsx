@@ -42,7 +42,7 @@ export function Sobre() {
 
       <Trajetoria titulo={sobre.trajetoriaTitulo} marcos={sobre.trajetoria} />
       <Galeria titulo={sobre.galeriaTitulo} itens={sobre.galeria} />
-      <Videos titulo={sobre.videosTitulo} videos={sobre.videos} />
+      <Videos titulo={sobre.videosTitulo} videos={sobre.videos} perfil={sobre.videosPerfil} />
     </section>
   )
 }
