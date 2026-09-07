@@ -45,8 +45,22 @@ function useAlturaDoEmbed(codigo) {
 export function VideoModal({ videos, indice, perfil, aoFechar, aoTrocar }) {
   const fecharRef = useRef(null)
   const anteriorRef = useRef(null)
+  const caixaRef = useRef(null)
+  const playerRef = useRef(null)
+  const ladoRef = useRef(null)
   const video = videos[indice]
   const altura = useAlturaDoEmbed(video?.codigo)
+
+  /* Trocar de vídeo pelas setas reaproveita a mesma caixa, e o navegador
+     mantém o `scrollTop` de quem estava rolado. Sem isto, quem lia a legenda
+     do vídeo anterior e apertava a seta abria o próximo já rolado para baixo:
+     o cabeçalho do embed (avatar, usuário, "Ver perfil") ficava fora da vista,
+     que foi o corte relatado. Cada vídeo novo começa do topo. */
+  useEffect(() => {
+    caixaRef.current?.scrollTo({ top: 0 })
+    playerRef.current?.scrollTo({ top: 0 })
+    ladoRef.current?.scrollTo({ top: 0 })
+  }, [indice])
 
   useEffect(() => {
     anteriorRef.current = document.activeElement
@@ -93,7 +107,6 @@ export function VideoModal({ videos, indice, perfil, aoFechar, aoTrocar }) {
 
   const link = `https://www.instagram.com/p/${video.codigo}/`
   const total = videos.filter((v) => v.codigo).length
-  const posicao = videos.filter((v) => v.codigo).findIndex((v) => v.codigo === video.codigo) + 1
 
   /* O modal sai do lugar por `createPortal`. O bloco de vídeos carrega
      `.revelar`, que é um `transform`, e enquanto essa transição roda o
@@ -120,8 +133,12 @@ export function VideoModal({ videos, indice, perfil, aoFechar, aoTrocar }) {
           da caixa: no celular a caixa vira um rolo só e um botão absoluto lá
           dentro subiria com o texto, deixando a pessoa sem saída visível. */}
       <div className="videomodal__moldura">
-        <div className="videomodal__caixa">
-          <div className="videomodal__player" style={altura ? { '--altura-embed': `${altura}px` } : undefined}>
+        <div className="videomodal__caixa" ref={caixaRef}>
+          <div
+            className="videomodal__player"
+            ref={playerRef}
+            style={altura ? { '--altura-embed': `${altura}px` } : undefined}
+          >
             <iframe
               key={video.codigo}
               src={`https://www.instagram.com/p/${video.codigo}/embed/`}
@@ -133,7 +150,7 @@ export function VideoModal({ videos, indice, perfil, aoFechar, aoTrocar }) {
             />
           </div>
 
-          <div className="videomodal__lado">
+          <div className="videomodal__lado" ref={ladoRef}>
             <p className="videomodal__conta">
               <Marca nome="Instagram" tamanho={18} />
               @drbrunoresende_
@@ -185,9 +202,6 @@ export function VideoModal({ videos, indice, perfil, aoFechar, aoTrocar }) {
             <Icone nome="seta" tamanho={24} />
             <span className="so-leitor">Próxima publicação</span>
           </button>
-          <p className="videomodal__contagem" aria-live="polite">
-            {posicao} de {total}
-          </p>
         </>
       )}
     </div>,

@@ -461,14 +461,18 @@
   touch-action: none;
 }
 
+/* Altura fixa no tamanho engrossado; o traço fino do repouso é um `scaleY` por
+   cima. Animar `height` gera layout a cada quadro — `transform` é só
+   composição, e a pega (absoluta, `inset-block: 0`) escala junto com o pai. */
 .videos__barra-trilho {
   position: relative;
   display: block;
-  height: 3px;
+  height: 6px;
   border-radius: 999px;
   background: var(--color-papel-fundo);
   overflow: hidden;
-  transition: height 0.2s var(--ease-saida);
+  transform: scaleY(0.5);
+  transition: transform 0.2s var(--ease-saida);
 }
 
 /* Engrossa sob o ponteiro e ao receber foco: confirma que a barra é para mexer
@@ -476,7 +480,7 @@
 .videos__barra:hover .videos__barra-trilho,
 .videos__barra:focus-visible .videos__barra-trilho,
 .videos__barra:active .videos__barra-trilho {
-  height: 6px;
+  transform: scaleY(1);
 }
 
 .videos__barra:focus-visible {
@@ -753,6 +757,14 @@ button.video:hover .video__acao svg {
   height: min(94vh, 53rem);
   height: round(down, min(94vh, 53rem), 1px);
   overflow: hidden;
+  /* No celular esta caixa é quem rola (regra lá embaixo). O player cresce de
+     um palpite de altura para a medida real do embed assim que o Instagram
+     termina de se medir, e essa mudança de altura empurra o texto abaixo:
+     sem isto, a rolagem por âncora do navegador lê o empurrão como "o
+     conteúdo visível se moveu" e compensa somando de volta ao `scrollTop` o
+     que o app tinha acabado de zerar ao trocar de vídeo — o cabeçalho do
+     embed (avatar, usuário, "Ver perfil") saía da vista de novo, sozinho. */
+  overflow-anchor: none;
   border-radius: 1.25rem;
   background: var(--color-papel-alto);
   box-shadow: 0 30px 70px -30px color-mix(in oklab, #000 70%, transparent);
@@ -785,6 +797,15 @@ button.video:hover .video__acao svg {
 /* A coluna é mais alta que o reel em telas grandes. O embed fica centrado na
    faixa em vez de encostar no topo com um vão vazio embaixo.
 
+   `safe` é o que impede o centro de virar corte. Centralizar conteúdo maior
+   que a caixa divide a sobra nas duas pontas, e a metade que vaza por cima da
+   borda de início de um contêiner rolável não é alcançável: `scrollTop` já
+   está em zero e ainda faltam dezenas de pixels acima — era o cabeçalho do
+   embed (avatar, usuário, "Ver perfil") decepado em janela baixa. Com `safe`
+   o navegador desiste do centro exatamente nesse caso e alinha no topo, que é
+   a única posição em que nada fica inacessível. Quando o reel cabe na coluna,
+   nada muda: continua centrado.
+
    O fundo é o tom de recuo do site, não o azul da marca: o cartão do embed é
    branco e sobre o azul escuro ele parece uma peça solta que sobrou ali. */
 /* `translateZ(0)` força o navegador a compor este bloco numa camada de GPU
@@ -795,7 +816,10 @@ button.video:hover .video__acao svg {
    vídeo essa composição falha visivelmente. Isolar a camada evita a disputa. */
 .videomodal__player {
   display: grid;
+  /* Reserva para navegador que não conheça a palavra-chave: a declaração
+     inválida é descartada e vale o centro simples de cima. */
   align-content: center;
+  align-content: safe center;
   background: var(--color-papel-fundo);
   overflow-y: auto;
   overflow-anchor: none;
@@ -820,6 +844,7 @@ button.video:hover .video__acao svg {
   padding: clamp(1.25rem, 2.5vw, 2rem);
   padding-right: clamp(3.5rem, 5vw, 4rem);
   overflow-y: auto;
+  overflow-anchor: none;
   overscroll-behavior: contain;
   /* A barra de rolagem nasce rente à borda da própria coluna, e essa borda é
      também o canto arredondado da `.videomodal__caixa` (que recorta com
@@ -963,23 +988,6 @@ button.video:hover .video__acao svg {
 
 .videomodal__seta--depois {
   right: 1.25rem;
-}
-
-.videomodal__contagem {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(0.25rem, 1.5vw, 0.9rem);
-  translate: -50% 0;
-  font-family: var(--font-campanha);
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  color: var(--color-noite-fraco);
-}
-
-@media (max-width: 1179px) {
-  .videomodal__contagem {
-    display: none;
-  }
 }
 
 /* ============================================================================
