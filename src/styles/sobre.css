@@ -237,225 +237,26 @@
 }
 
 /* ============================================================================
-   GALERIA
+   PUBLICAÇÕES (carrossel)
+   ----------------------------------------------------------------------------
+   Os reels são verticais e assim ficam: a capa mantém 9:16 porque é o
+   enquadramento em que a legenda foi queimada no vídeo. Cortar para paisagem
+   decapitaria o texto e a marca 4400 no pé da peça.
+
+   Em grade, onze capas 9:16 viravam seis linhas e engoliam a página entre a
+   trajetória e as propostas. Deitado, o bloco ocupa uma faixa só: arrastar,
+   roda horizontal, setas no desktop e rolagem nativa no toque.
    ========================================================================== */
 
-.galeria {
+.videos {
   margin-top: clamp(4rem, 8vw, 6.5rem);
 }
 
-.galeria__cabeca {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.galeria__titulo,
 .videos__titulo {
   font-family: var(--font-campanha);
   font-size: var(--text-medio);
   font-weight: 600;
   letter-spacing: -0.02em;
-}
-
-.galeria__dica {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.9rem;
-  color: var(--color-tinta-fraca);
-}
-
-/* Oito fotos em quatro colunas fecham duas fileiras cheias. Com `auto-fill` a
-   grade cai em cinco no desktop largo e sobram três órfãs na segunda fileira. */
-.galeria__grade {
-  display: grid;
-  /* Duas colunas já no celular: em coluna única, oito fotos viram oito telas de
-     rolagem antes de a pessoa chegar aos vídeos. */
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-@media (min-width: 620px) {
-  .galeria__grade {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1rem;
-  }
-}
-
-@media (min-width: 900px) {
-  .galeria__grade {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.galeria__item {
-  display: flex;
-}
-
-.galeria__botao {
-  display: flex;
-  flex-direction: column;
-}
-
-.galeria__legenda {
-  margin-top: auto;
-}
-
-.galeria__botao {
-  position: relative;
-  display: block;
-  width: 100%;
-  padding: 0;
-  overflow: hidden;
-  border-radius: 1rem;
-  background: var(--color-papel-fundo);
-  text-align: left;
-}
-
-.galeria__botao img,
-.galeria__reservada {
-  aspect-ratio: 4 / 3;
-  width: 100%;
-  object-fit: cover;
-}
-
-.galeria__botao:not(.galeria__botao--vazio):hover img {
-  transform: scale(1.04);
-}
-
-.galeria__botao img {
-  transition: transform 0.5s var(--ease-saida);
-}
-
-.galeria__reservada {
-  position: relative;
-  display: grid;
-  place-items: center;
-  color: color-mix(in oklab, var(--color-vivo) 22%, transparent);
-  background: color-mix(in oklab, var(--color-vivo) 7%, var(--color-papel-alto));
-}
-
-.galeria__hachura {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  rotate: var(--giro);
-}
-
-.galeria__aviso {
-  position: relative;
-  font-family: var(--font-campanha);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-vivo);
-  background: var(--color-papel-alto);
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
-}
-
-.galeria__legenda {
-  display: block;
-  padding: 0.75rem 0.9rem 0.9rem;
-  font-size: 0.9rem;
-  line-height: 1.35;
-  color: var(--color-tinta-fraca);
-}
-
-/* ---------- Ampliação ---------- */
-
-.lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  display: grid;
-  place-items: center;
-  padding: clamp(1rem, 4vw, 3rem);
-}
-
-.lightbox__veu {
-  position: absolute;
-  inset: 0;
-  background: color-mix(in oklab, var(--color-noite) 88%, transparent);
-  backdrop-filter: blur(6px);
-}
-
-.lightbox__caixa {
-  position: relative;
-  margin: 0;
-  max-width: min(64rem, 100%);
-}
-
-.lightbox__caixa img {
-  width: 100%;
-  height: auto;
-  max-height: 78vh;
-  object-fit: contain;
-  border-radius: 0.75rem;
-}
-
-.lightbox__caixa figcaption {
-  margin-top: 0.9rem;
-  text-align: center;
-  color: var(--color-noite-texto);
-}
-
-.lightbox__fechar,
-.lightbox__seta {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  width: 3.25rem;
-  height: 3.25rem;
-  border-radius: 999px;
-  color: var(--color-branco);
-  background: color-mix(in oklab, var(--color-branco) 16%, transparent);
-  backdrop-filter: blur(4px);
-}
-
-.lightbox__fechar:hover,
-.lightbox__seta:hover {
-  background: var(--color-rosa);
-}
-
-.lightbox__fechar {
-  top: 1rem;
-  right: 1rem;
-}
-
-.lightbox__seta {
-  top: 50%;
-  translate: 0 -50%;
-}
-
-.lightbox__seta--antes {
-  left: 1rem;
-  rotate: 180deg;
-}
-
-.lightbox__seta--depois {
-  right: 1rem;
-}
-
-/* ============================================================================
-   VÍDEOS
-   ----------------------------------------------------------------------------
-   Os reels são verticais e assim ficam: a capa mantém 9:16 porque é o
-   enquadramento em que a legenda foi queimada no vídeo. Cortar para paisagem
-   decapitaria o texto e a marca 4400 no pé da peça.
-   ========================================================================== */
-
-.videos {
-  margin-top: clamp(4rem, 8vw, 6.5rem);
 }
 
 .videos__cabeca {
@@ -465,6 +266,12 @@
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.5rem;
+}
+
+.videos__controles {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
 }
 
 .videos__perfil {
@@ -481,44 +288,220 @@
   color: var(--color-rosa);
 }
 
-.videos__grade {
-  display: grid;
-  /* Duas colunas já no celular, pelo mesmo motivo da galeria: em coluna única
-     um reel 9:16 ocupa a tela inteira e são três telas de rolagem. */
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+/* ---------- Setas ---------- */
 
-/* Abaixo de 900px a seção fecha em quatro cartões, duas linhas de dois. O
-   quinto vídeo sai: em duas colunas ele ficaria sozinho numa terceira linha, e
-   uma capa 9:16 órfã abre um buraco de meia tela antes das propostas. Ele
-   continua no `candidato.js` e volta sozinho no desktop. */
-.videos__grade > li:nth-child(n + 5) {
+/* Só no ponteiro. No toque a faixa se arrasta com o dedo e dois botões extras
+   na cabeça roubariam a linha inteira do título no celular. */
+.videos__setas {
   display: none;
+  gap: 0.5rem;
 }
 
 @media (min-width: 700px) {
-  .videos__grade {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1rem;
+  .videos__setas {
+    display: flex;
   }
 }
 
-/* Cinco colunas na largura cheia da faixa, como a galeria. Sem teto de
-   largura: capado em 68rem sobrava vão vazio à direita em telas largas,
-   quando a faixa de conteúdo (`--largura-max`, 80rem) passa desse valor. */
-@media (min-width: 900px) {
-  .videos__grade {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 1.25rem;
-  }
+.videos__seta {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  color: var(--color-vivo);
+  background: var(--color-papel-alto);
+  border: 1px solid var(--color-papel-fundo);
+  cursor: pointer;
+  transition:
+    color 0.25s,
+    background 0.25s,
+    border-color 0.25s,
+    opacity 0.25s;
+}
 
-  .videos__grade > li:nth-child(n + 5) {
-    display: block;
+.videos__seta:hover:not(:disabled) {
+  color: var(--color-branco);
+  background: var(--color-rosa);
+  border-color: var(--color-rosa);
+}
+
+/* Ponta da faixa: some do caminho em vez de virar um botão morto que a pessoa
+   clica sem entender por que nada acontece. */
+.videos__seta:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+.videos__seta--antes {
+  rotate: 180deg;
+}
+
+/* ---------- A pista ---------- */
+
+/* No celular a faixa sangra até a borda da tela: um cartão cortado ao meio na
+   margem é o que diz, sem texto nem seta, que ainda tem coisa para o lado. */
+.videos__pista {
+  position: relative;
+  margin-inline: -1.125rem;
+  padding-inline: 1.125rem;
+}
+
+@media (min-width: 700px) {
+  .videos__pista {
+    margin-inline: 0;
+    padding-inline: 0;
   }
+}
+
+/* Esmaecido nas bordas, aceso só do lado em que ainda há conteúdo. Fica sobre
+   o trilho, então não pode receber o ponteiro: senão come o clique do cartão
+   que está debaixo dele. */
+.videos__pista::before,
+.videos__pista::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(1.5rem, 5vw, 3.5rem);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 1;
+}
+
+.videos__pista::before {
+  left: 0;
+  background: linear-gradient(to right, var(--color-papel), transparent);
+}
+
+.videos__pista::after {
+  right: 0;
+  background: linear-gradient(to left, var(--color-papel), transparent);
+}
+
+.videos__pista[data-antes='true']::before,
+.videos__pista[data-depois='true']::after {
+  opacity: 1;
+}
+
+/* ---------- O trilho ---------- */
+
+/* `--por-tela` é fracionário de propósito: o resto de cartão que sobra na
+   borda direita é a promessa de que a faixa continua. */
+.videos__trilho {
+  --por-tela: 2.2;
+  --vao: 0.75rem;
+
+  display: flex;
+  gap: var(--vao);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  /* `pan-y` continua liberado: o dedo que começa em cima do carrossel e sobe
+     tem de rolar a página, não ficar preso na faixa. */
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  cursor: grab;
+  /* A capa tem sombra e o cartão sobe 4px no hover; sem a folga o corte do
+     `overflow` come os dois. */
+  padding-block: 0.25rem 0.5rem;
+}
+
+.videos__trilho::-webkit-scrollbar {
+  display: none;
+}
+
+.videos__trilho:active {
+  cursor: grabbing;
+}
+
+.videos__trilho > li {
+  flex: 0 0 calc((100% - (var(--por-tela) - 1) * var(--vao)) / var(--por-tela));
+  scroll-snap-align: start;
+}
+
+@media (min-width: 560px) {
+  .videos__trilho {
+    --por-tela: 3.2;
+  }
+}
+
+@media (min-width: 700px) {
+  .videos__trilho {
+    --por-tela: 4.2;
+    --vao: 1rem;
+  }
+}
+
+@media (min-width: 1100px) {
+  .videos__trilho {
+    --por-tela: 5.2;
+    --vao: 1.25rem;
+  }
+}
+
+/* ---------- Barra de rolagem ---------- */
+
+/* É a rolagem da faixa, não um indicador: clicar leva, arrastar puxa. No
+   celular é o único controle visível, porque as setas só existem no ponteiro e
+   a barra do sistema está escondida.
+
+   A área de pega é a caixa inteira, com folga acima e abaixo do traço: três
+   pixels de altura desenhada não se acerta com o dedo. */
+.videos__barra {
+  margin-top: 0.75rem;
+  padding-block: 0.5rem;
+  cursor: pointer;
+  /* O gesto pertence à barra. Sem isto o navegador entende o arrasto para o
+     lado como início de rolagem da página e a pega escapa do dedo. */
+  touch-action: none;
+}
+
+.videos__barra-trilho {
+  position: relative;
+  display: block;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--color-papel-fundo);
+  overflow: hidden;
+  transition: height 0.2s var(--ease-saida);
+}
+
+/* Engrossa sob o ponteiro e ao receber foco: confirma que a barra é para mexer
+   antes de a pessoa tentar. */
+.videos__barra:hover .videos__barra-trilho,
+.videos__barra:focus-visible .videos__barra-trilho,
+.videos__barra:active .videos__barra-trilho {
+  height: 6px;
+}
+
+.videos__barra:focus-visible {
+  outline: none;
+}
+
+.videos__barra:focus-visible .videos__barra-trilho {
+  outline: 2px solid var(--color-vivo);
+  outline-offset: 4px;
+}
+
+/* A pega ocupa a mesma fração que o trilho mostra do total e anda no que
+   sobra: `100% - --tamanho` é exatamente esse vão, medido na barra. */
+.videos__barra-pega {
+  position: absolute;
+  inset-block: 0;
+  width: var(--tamanho, 100%);
+  left: calc(var(--posicao, 0) * (100% - var(--tamanho, 100%)));
+  border-radius: 999px;
+  background: var(--color-vivo);
+}
+
+.videos__barra:hover .videos__barra-pega,
+.videos__barra:active .videos__barra-pega {
+  background: var(--color-rosa);
 }
 
 .video {
@@ -534,7 +517,6 @@
   border: 0;
   padding: 0;
   transition: transform 0.3s var(--ease-saida);
-  transition-delay: var(--atraso, 0ms);
 }
 
 button.video {
@@ -638,6 +620,9 @@ button.video:focus-visible .video__play {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  /* Empurra o link para o pé do cartão: as descrições têm alturas diferentes e,
+     sem isso, a linha de "Assistir" fica em degraus ao longo do trilho. */
+  flex: 1;
 }
 
 .video__titulo {
@@ -658,7 +643,8 @@ button.video:focus-visible .video__play {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  margin-top: 0.35rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
   font-family: var(--font-campanha);
   font-size: 0.8rem;
   font-weight: 600;
@@ -698,7 +684,7 @@ button.video:hover .video__acao svg {
 
 .video__estado {
   align-self: flex-start;
-  margin-top: 0.35rem;
+  margin-top: auto;
   font-family: var(--font-campanha);
   font-size: 0.7rem;
   font-weight: 600;
@@ -713,8 +699,8 @@ button.video:hover .video__acao svg {
 /* ============================================================================
    MODAL DO VÍDEO
    ----------------------------------------------------------------------------
-   Mesmo véu e mesmos controles da ampliação de foto: quem já abriu uma foto na
-   galeria não precisa reaprender nada aqui.
+   Player à esquerda, o que a peça diz à direita. O véu e os controles são os
+   mesmos do resto do site: nada aqui precisa ser reaprendido.
    ========================================================================== */
 
 .videomodal {

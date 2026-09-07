@@ -1,7 +1,6 @@
 import { candidato } from '../../data/candidato.js'
 import { useRevelar } from '../../lib/useRevelar.js'
 import { Trajetoria } from './Trajetoria.jsx'
-import { Galeria } from './Galeria.jsx'
 import { Videos } from './Videos.jsx'
 
 export function Sobre() {
@@ -41,7 +40,6 @@ export function Sobre() {
       </div>
 
       <Trajetoria titulo={sobre.trajetoriaTitulo} marcos={sobre.trajetoria} />
-      <Galeria titulo={sobre.galeriaTitulo} itens={sobre.galeria} />
       <Videos titulo={sobre.videosTitulo} videos={sobre.videos} perfil={sobre.videosPerfil} />
     </section>
   )

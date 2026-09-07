@@ -111,10 +111,10 @@ export function VideoModal({ videos, indice, perfil, aoFechar, aoTrocar }) {
       className="videomodal"
       role="dialog"
       aria-modal="true"
-      aria-label={`Vídeo: ${video.titulo}`}
+      aria-label={`Publicação: ${video.titulo}`}
       data-lenis-prevent
     >
-      <button type="button" className="videomodal__veu" onClick={aoFechar} aria-label="Fechar vídeo" />
+      <button type="button" className="videomodal__veu" onClick={aoFechar} aria-label="Fechar a publicação" />
 
       {/* A moldura não rola nunca. É ela que ancora o botão de fechar no canto
           da caixa: no celular a caixa vira um rolo só e um botão absoluto lá
@@ -125,7 +125,7 @@ export function VideoModal({ videos, indice, perfil, aoFechar, aoTrocar }) {
             <iframe
               key={video.codigo}
               src={`https://www.instagram.com/p/${video.codigo}/embed/`}
-              title={`Vídeo no Instagram: ${video.titulo}`}
+              title={`Publicação no Instagram: ${video.titulo}`}
               loading="lazy"
               scrolling="no"
               allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
@@ -162,7 +162,7 @@ export function VideoModal({ videos, indice, perfil, aoFechar, aoTrocar }) {
               </a>
               {perfil && (
                 <a className="videomodal__perfil" href={perfil} target="_blank" rel="noopener noreferrer">
-                  Todos os vídeos no perfil
+                  Todas as publicações no perfil
                 </a>
               )}
             </div>
@@ -171,7 +171,7 @@ export function VideoModal({ videos, indice, perfil, aoFechar, aoTrocar }) {
 
         <button type="button" ref={fecharRef} className="videomodal__fechar" onClick={aoFechar}>
           <Icone nome="fechar" tamanho={24} />
-          <span className="so-leitor">Fechar vídeo</span>
+          <span className="so-leitor">Fechar a publicação</span>
         </button>
       </div>
 
@@ -179,11 +179,11 @@ export function VideoModal({ videos, indice, perfil, aoFechar, aoTrocar }) {
         <>
           <button type="button" className="videomodal__seta videomodal__seta--antes" onClick={() => passar(-1)}>
             <Icone nome="seta" tamanho={24} />
-            <span className="so-leitor">Vídeo anterior</span>
+            <span className="so-leitor">Publicação anterior</span>
           </button>
           <button type="button" className="videomodal__seta videomodal__seta--depois" onClick={() => passar(1)}>
             <Icone nome="seta" tamanho={24} />
-            <span className="so-leitor">Próximo vídeo</span>
+            <span className="so-leitor">Próxima publicação</span>
           </button>
           <p className="videomodal__contagem" aria-live="polite">
             {posicao} de {total}

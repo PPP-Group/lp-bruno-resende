@@ -104,42 +104,62 @@ export const candidato = {
       },
     ],
 
-    /* GALERIA, sem `src`, o componente desenha um espaço reservado com a
-       legenda. Substitua por 8 a 12 fotos reais em /public/assets/galeria/. */
-    galeriaTitulo: 'A campanha por aí',
-    galeria: [
-      { legenda: 'A roça em Mimoso do Sul, onde tudo começou', src: null },
-      { legenda: 'Radioterapia no Hospital Evangélico de Cachoeiro', src: null },
-      { legenda: 'Obra do Hospital do Câncer de Cachoeiro', src: null },
-      { legenda: 'Visita à unidade de AVC', src: null },
-      { legenda: 'Agenda no interior do Estado', src: null },
-      { legenda: 'Encontro com agentes comunitários de saúde', src: null },
-      { legenda: 'Produtores rurais na região sul', src: null },
-      { legenda: 'Assembleia Legislativa do Espírito Santo', src: null },
-    ],
+    /* PUBLICAÇÕES DO PERFIL OFICIAL (@drbrunoresende_). O cartão mostra a capa
+       baixada para /public/assets/videos/ e o modal carrega o próprio player do
+       Instagram, que é o que mantém a métrica no perfil e evita hospedar peça
+       de campanha em servidor nosso.
 
-    /* VÍDEOS, reels do perfil oficial (@drbrunoresende_). O cartão mostra
-       a capa baixada para /public/assets/videos/ e o modal carrega o próprio
-       player do Instagram, que é o que mantém a métrica no perfil e evita
-       hospedar vídeo de campanha em servidor nosso.
+       `codigo` é o shortcode da URL (instagram.com/p/CODIGO/). Trocar a peça é
+       trocar o código e a capa: nada mais no componente depende disto. Entrada
+       sem `codigo` continua na página no estado "em breve".
 
-       `codigo` é o shortcode da URL (instagram.com/p/CODIGO/). Trocar o vídeo
-       é trocar o código e a capa: nada mais no componente depende disto.
-       Entrada sem `codigo` continua na página no estado "em breve". */
-    videosTitulo: 'Em vídeo',
+       `tipo` só aparece quando o post não é um reel: 'carrossel' troca o selo e
+       o ícone do cartão, porque prometer play numa sequência de artes quebra a
+       expectativa de quem clica. O padrão é 'reel'.
+
+       A ordem aqui é a ordem do carrossel na página: abre pela trajetória
+       pessoal, segue para o Hospital do Câncer e fecha com a campanha na rua. */
+    videosTitulo: 'A campanha por aí',
     videosPerfil: 'https://www.instagram.com/drbrunoresende_/',
     videos: [
       {
-        codigo: 'DcWzmKlh3dV',
-        titulo: 'Política é compromisso',
-        descricao: 'A promessa que ele carrega desde que entrou na vida pública.',
-        capa: '/assets/videos/DcWzmKlh3dV.jpg',
-        local: 'Reunião com moradores de Itapemirim',
+        codigo: 'DcYXskzxkzD',
+        titulo: 'Na garupa da moto',
+        descricao: 'Onde a vocação começou, aos 14 anos, e por que ela virou política.',
+        capa: '/assets/videos/DcYXskzxkzD.jpg',
+        local: 'Espírito Santo',
         legenda: [
-          'Política não pode ser negócio. Política precisa ser compromisso com as pessoas.',
-          'Neste sábado à tarde, durante uma reunião com moradores de Itapemirim, eu compartilhei uma promessa que carrego comigo desde que decidi entrar na vida pública: “Não permita que o dinheiro da corrupção construa um tijolo na sua casa.”',
-          'Porque a corrupção pode parecer distante, mas suas consequências chegam à vida de quem mais precisa. Quando alguém vende o voto, não está vendendo apenas uma escolha. Pode estar abrindo mão de uma vaga de UTI para a própria mãe, de um hospital para atender o filho, de um emprego digno ou de serviços públicos que deveriam estar disponíveis para todos.',
-          'Quatro anos depois de assumir um mandato, eu posso olhar para trás e afirmar: o dinheiro da corrupção nunca entrou na minha casa. E essa continuará sendo a minha maior promessa.',
+          'Eu sou o Dr. Bruno Resende, o médico que entrou para a política para continuar fazendo o que sempre fez: salvar vidas.',
+          'Aos 14 anos, na garupa da moto com meu pai, eu descobri a minha vocação. Naquele momento, decidi que seria médico para cuidar de pessoas.',
+          'A medicina me ensinou que cada vida importa. E foi esse mesmo propósito que me levou para a política: transformar cuidado em ações, esperança em resultados e compromisso em vidas salvas.',
+          'Não deixei de ser médico quando entrei para a política. Pelo contrário. Levei a medicina comigo.',
+          'Sou o político da vida. Porque, para mim, cuidar de pessoas sempre foi — e sempre será — a minha maior missão.',
+        ],
+      },
+      {
+        codigo: 'DchGep3PTgf',
+        titulo: 'O Fusca do meu pai',
+        descricao: 'Um Itamar 1994 que passou de pai para filho e ainda faz campanha.',
+        capa: '/assets/videos/DchGep3PTgf.jpg',
+        local: 'Espírito Santo',
+        legenda: [
+          'A vida inteira eu andei de Fusca.',
+          'Esse aqui é especial: é o Fusca do meu pai, um Itamar 1994. Foi nele que fizemos muitas campanhas políticas, percorremos estradas, encontramos pessoas e vivemos histórias que ficaram na memória.',
+          'Passou de pai para filho e, hoje, está comigo e também já faz parte da história da Maria Clara.',
+          'Mais do que um carro, é um pedaço da nossa família, da nossa história e das nossas raízes.',
+        ],
+      },
+      {
+        codigo: 'DcL4kPMRXms',
+        titulo: 'De 2022 a 2026, no mesmo terreno',
+        descricao: 'A volta ao lugar onde ele prometeu o Hospital do Câncer, agora com a obra de pé.',
+        capa: '/assets/videos/DcL4kPMRXms.jpg',
+        local: 'Cachoeiro de Itapemirim',
+        legenda: [
+          'Em 2022, eu disse que aqui nasceria o Hospital do Câncer de todos os capixabas.',
+          'Hoje, em 2026, volto para mostrar que aquilo que um dia foi um sonho, agora está se tornando realidade. A obra está avançando, e cada etapa representa esperança para milhares de pacientes e famílias de todo o Espírito Santo.',
+          'Mas ainda temos um caminho pela frente. Precisamos continuar unidos e contando com a força e o apoio de cada um de vocês para que, muito em breve, esse hospital esteja de pé, funcionando e oferecendo mais saúde, dignidade e cuidado a quem mais precisa.',
+          'O sonho começou lá atrás. Hoje, ele já pode ser visto de perto. E juntos, vamos transformar esse sonho em realidade.',
         ],
       },
       {
@@ -153,6 +173,54 @@ export const candidato = {
           'Estamos construindo um grande Hospital do Câncer, que vai transformar vidas e mudar a história da saúde em todo o Espírito Santo. Um hospital completo, com leitos, UTIs, uma nova e moderna radioterapia e um setor de hemodiálise preparado para atender quem mais precisa.',
           'Mas, acima de tudo, estamos construindo um lugar para cuidar de pessoas. Onde cada família poderá encontrar segurança e conforto em um dos momentos mais difíceis da vida. E essa transformação também vai gerar empregos, movimentar a economia e fortalecer toda a nossa região.',
           'Porque o que estamos construindo aqui não é apenas um hospital. É cuidado. É dignidade. É esperança.',
+        ],
+      },
+      {
+        /* Único post da lista que não é reel: é um carrossel de artes com os
+           projetos de lei. Daí o `tipo`. */
+        codigo: 'DcbX6ByESeY',
+        tipo: 'carrossel',
+        titulo: 'Direitos de quem enfrenta o câncer',
+        descricao: 'Os projetos da oncologia: estatuto, prioridade, nutrição e proteção.',
+        capa: '/assets/videos/DcbX6ByESeY.jpg',
+        local: 'Assembleia Legislativa do Espírito Santo',
+        legenda: [
+          'Quem enfrenta o câncer precisa conhecer os seus direitos e, principalmente, saber que existem projetos que podem transformar a jornada do paciente. Ao longo do nosso trabalho, construímos iniciativas voltadas para quem mais precisa: o Estatuto da Pessoa com Câncer no Espírito Santo, atendimento prioritário para crianças e adolescentes com câncer, terapia nutricional especializada desde o diagnóstico e durante o tratamento e o fornecimento de protetor solar para pessoas que fazem ou fizeram tratamento contra o câncer.',
+          'São projetos que nascem da experiência de quem conhece a oncologia por dentro e entende que cuidar vai muito além do consultório. Informação também é cuidado, direito também é tratamento e dignidade também faz parte da luta contra o câncer.',
+        ],
+      },
+      {
+        codigo: 'DcbBxSCxYVM',
+        titulo: 'Tratamento mais perto de casa',
+        descricao: 'A estrada antes de o sol nascer, e por que a distância também adoece.',
+        capa: '/assets/videos/DcbBxSCxYVM.jpg',
+        local: 'Cachoeiro de Itapemirim',
+        legenda: [
+          'Todos os dias, antes mesmo do sol nascer, muitas famílias colocam uma vida inteira dentro de uma bolsa e enfrentam horas de estrada para buscar tratamento contra o câncer. Para quem enfrenta a doença, a distância também é uma batalha. E essa realidade não pode ser aceita como definitiva.',
+          'É por isso que o Hospital do Câncer de Cachoeiro de Itapemirim está sendo construído: para aproximar o cuidado de quem precisa, transformar distância em acolhimento e sofrimento em esperança. Nenhuma obra muda o passado, mas algumas obras têm o poder de mudar o futuro. Um futuro em que a luta contra o câncer possa começar mais perto de casa.',
+        ],
+      },
+      {
+        codigo: 'Dcdow2LRwUM',
+        titulo: 'De Irupi a Boa Esperança',
+        descricao: 'O agradecimento a quem sustenta o trabalho em cada canto do Estado.',
+        capa: '/assets/videos/Dcdow2LRwUM.jpg',
+        local: 'Irupi, Itapemirim e Boa Esperança',
+        legenda: [
+          'Meu agradecimento especial aos meus amigos Ademir, de Irupi, Vinicius Viana, de Itapemirim e ao vereador Vevé, de Boa Esperança, pelo apoio, pela confiança e, principalmente, pelo carinho com o nosso trabalho.',
+        ],
+      },
+      {
+        codigo: 'DcWzmKlh3dV',
+        titulo: 'Política é compromisso',
+        descricao: 'A promessa que ele carrega desde que entrou na vida pública.',
+        capa: '/assets/videos/DcWzmKlh3dV.jpg',
+        local: 'Reunião com moradores de Itapemirim',
+        legenda: [
+          'Política não pode ser negócio. Política precisa ser compromisso com as pessoas.',
+          'Neste sábado à tarde, durante uma reunião com moradores de Itapemirim, eu compartilhei uma promessa que carrego comigo desde que decidi entrar na vida pública: “Não permita que o dinheiro da corrupção construa um tijolo na sua casa.”',
+          'Porque a corrupção pode parecer distante, mas suas consequências chegam à vida de quem mais precisa. Quando alguém vende o voto, não está vendendo apenas uma escolha. Pode estar abrindo mão de uma vaga de UTI para a própria mãe, de um hospital para atender o filho, de um emprego digno ou de serviços públicos que deveriam estar disponíveis para todos.',
+          'Quatro anos depois de assumir um mandato, eu posso olhar para trás e afirmar: o dinheiro da corrupção nunca entrou na minha casa. E essa continuará sendo a minha maior promessa.',
         ],
       },
       {
@@ -175,10 +243,6 @@ export const candidato = {
         local: 'Espírito Santo',
         legenda: ['Nós vamos surpreender esse estado de novo.'],
       },
-      /* O quinto é o único que o celular não mostra: a grade fecha em quatro
-         para caber em duas linhas de dois, e este é o de legenda mais curta,
-         o que menos perde ao ficar de fora. Ver `.videos__grade` em
-         sobre.css. */
       {
         codigo: 'DcLgdTtR8iq',
         titulo: 'Dr. Bruno chegou',
