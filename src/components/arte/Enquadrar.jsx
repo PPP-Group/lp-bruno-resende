@@ -160,11 +160,18 @@ export function Enquadrar({ estado, despachar, quadro, cena, aoEscolherArquivo, 
   return (
     <>
       {/* `wheel` e `touchmove` não aparecem aqui de propósito: são montados como
-          ouvintes nativos no efeito acima, porque os do React são passivos. */}
+          ouvintes nativos no efeito acima, porque os do React são passivos.
+
+          `data-lenis-prevent-wheel` é do Lenis (a rolagem suave da página, em
+          src/lib/rolagem.js). Lenis captura a roda antes do DOM nativo decidir
+          o que fazer com ela: mesmo com preventDefault no ouvinte de baixo, ele
+          rolava a página por cima. Esse atributo faz o Lenis pular a roda
+          inteiramente dentro do palco e devolver o gesto para o nosso código. */}
       <div
         ref={palco}
         className="enquadrar__palco"
         data-tem-foto={temFoto}
+        data-lenis-prevent-wheel
         style={{ aspectRatio: `${quadro.largura} / ${quadro.altura}` }}
         onPointerDown={noPonteiroDesce}
         onPointerMove={noPonteiroMove}

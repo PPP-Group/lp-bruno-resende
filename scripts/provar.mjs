@@ -463,6 +463,88 @@ await espera(300)
 await pagina.evaluate(() => document.querySelector('.enquadrar__redefinir').click())
 await espera(300)
 
+/* A mesma roda, mas com o Lenis LIGADO.
+   ----------------------------------------------------------------------
+   `iniciarRolagem()` desliga o Lenis inteiro sob prefers-reduced-motion, que é
+   o que `pagina` roda a suíte inteira. A primeira versão desta prova passava
+   nessa página e não pegava nada: o bug real era o Lenis, que intercepta a
+   roda antes do DOM nativo decidir o que fazer com ela, por baixo de qualquer
+   preventDefault. Só um teste com o Lenis de verdade ligado prova a correção
+   (data-lenis-prevent-wheel em .enquadrar__palco). Por isso uma aba própria,
+   sem emular movimento reduzido. */
+const abaComLenis = await navegador.newPage()
+await abaComLenis.setViewport({ width: 1440, height: 900 })
+await abaComLenis.goto(URL, { waitUntil: 'networkidle0' })
+await abaComLenis.evaluate(() => document.fonts.ready)
+await espera(1200) // o laço de requestAnimationFrame do Lenis precisa iniciar
+
+/* `scrollIntoView()` não serve aqui: `base.css` põe `scroll-behavior: smooth`
+   no documento, e essa rolagem nativa briga com a do Lenis em vez de somar —
+   a primeira versão desta prova rolava para lugar nenhum, a caixa calculada
+   ficava fora da tela, e o clique de roda caía no vazio. Rolar com a própria
+   roda, num ponto fora de qualquer cartão, é o mesmo caminho que a pessoa usa
+   de verdade, e é o único que o Lenis realmente obedece. */
+const rolarAteVer = async (seletor) => {
+  for (let tentativa = 0; tentativa < 50; tentativa++) {
+    const topo = await abaComLenis.evaluate(
+      (s) => document.querySelector(s)?.getBoundingClientRect().top ?? null,
+      seletor,
+    )
+    if (topo === null) throw new Error(`elemento não encontrado: ${seletor}`)
+    if (topo > 90 && topo < 260) return
+    await abaComLenis.mouse.move(12, 450)
+    await abaComLenis.mouse.wheel({ deltaY: topo > 260 ? 700 : -700 })
+    await espera(140)
+  }
+  throw new Error(`não conseguiu rolar até ${seletor}`)
+}
+
+await rolarAteVer('#arte')
+await espera(600) // o Lenis ainda está freando; sem isto a caixa medida abaixo já ficou velha
+await (await abaComLenis.$('.enquadrar__arquivo')).uploadFile(caminhoFoto)
+await espera(900)
+
+const caixaComLenis = await abaComLenis.evaluate(() => {
+  const r = document.querySelector('.enquadrar__palco').getBoundingClientRect()
+  return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) }
+})
+const antesLenis = await abaComLenis.evaluate(() => ({
+  rolagem: Math.round(window.scrollY),
+  zoom: Number(document.querySelector('.enquadrar__zoom').value),
+}))
+
+await abaComLenis.mouse.move(caixaComLenis.x, caixaComLenis.y)
+await abaComLenis.mouse.wheel({ deltaY: -240 })
+await espera(600) // o Lenis anima a rolagem em vários quadros, não num só
+
+const depoisLenis = await abaComLenis.evaluate(() => ({
+  rolagem: Math.round(window.scrollY),
+  zoom: Number(document.querySelector('.enquadrar__zoom').value),
+}))
+
+conferir(
+  'Com o Lenis ligado, a roda sobre o enquadramento aproxima a foto',
+  depoisLenis.zoom > antesLenis.zoom,
+  `${antesLenis.zoom} para ${depoisLenis.zoom}`,
+)
+conferir(
+  'Com o Lenis ligado, a roda sobre o enquadramento não rola a página',
+  Math.abs(depoisLenis.rolagem - antesLenis.rolagem) <= 2,
+  `${antesLenis.rolagem} para ${depoisLenis.rolagem}`,
+)
+
+await abaComLenis.mouse.move(20, 400)
+await abaComLenis.mouse.wheel({ deltaY: 240 })
+await espera(600)
+const foraComLenis = await abaComLenis.evaluate(() => Math.round(window.scrollY))
+conferir(
+  'Com o Lenis ligado, a roda fora do enquadramento ainda rola a página',
+  foraComLenis > depoisLenis.rolagem,
+  `${depoisLenis.rolagem} para ${foraComLenis}`,
+)
+
+await abaComLenis.close()
+
 // Trocar de moldura tem de mudar o que está desenhado, não só o aria-checked.
 const antesDaMoldura = await assinar()
 await pagina.click('.molduras__opcao[data-id="perfil-03"]')
