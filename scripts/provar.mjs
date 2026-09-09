@@ -236,7 +236,67 @@ conferir(
 )
 conferir('Seção de artes tem região de aviso', secaoArte?.aviso === true)
 
-/* ---------- 10. Contadores e revelações ao percorrer a página ----------
+/* ---------- 10. Gerador de artes: a grade de molduras ---------- */
+const grade = await pagina.evaluate(() => {
+  const g = document.querySelector('.molduras__grade')
+  if (!g) return null
+  const itens = [...g.querySelectorAll('.molduras__opcao')]
+  return {
+    papel: g.getAttribute('role'),
+    quantos: itens.length,
+    marcados: itens.filter((i) => i.getAttribute('aria-checked') === 'true').length,
+    primeiro: itens[0]?.getAttribute('aria-checked'),
+    focaveis: itens.filter((i) => i.tabIndex === 0).length,
+    mini: itens[0]?.querySelector('img')?.getAttribute('src'),
+  }
+})
+
+conferir('Grade é um radiogroup', grade?.papel === 'radiogroup')
+conferir('Oito molduras de perfil', grade?.quantos === 8, String(grade?.quantos))
+conferir('Exatamente uma marcada, a primeira', grade?.marcados === 1 && grade?.primeiro === 'true')
+conferir('Só um item recebe Tab', grade?.focaveis === 1, String(grade?.focaveis))
+conferir(
+  'A grade carrega miniatura, não o overlay',
+  grade?.mini?.includes('/molduras/mini/') === true,
+  grade?.mini,
+)
+
+// Seta para a direita anda na grade e leva a marcação junto.
+await pagina.focus('.molduras__opcao[aria-checked="true"]')
+await pagina.keyboard.press('ArrowRight')
+await espera(150)
+const depoisDaSeta = await pagina.evaluate(() => {
+  const itens = [...document.querySelectorAll('.molduras__opcao')]
+  return {
+    marcado: itens.findIndex((i) => i.getAttribute('aria-checked') === 'true'),
+    focado: itens.indexOf(document.activeElement),
+  }
+})
+conferir(
+  'Seta anda na grade e move a marcação',
+  depoisDaSeta.marcado === 1 && depoisDaSeta.focado === 1,
+  `marcado ${depoisDaSeta.marcado}, focado ${depoisDaSeta.focado}`,
+)
+
+// Trocar para story troca a grade e volta para a primeira moldura.
+await pagina.click('.arte__aba[data-formato="story"]')
+await espera(250)
+const noStory = await pagina.evaluate(() => {
+  const itens = [...document.querySelectorAll('.molduras__opcao')]
+  return {
+    quantos: itens.length,
+    marcado: itens.findIndex((i) => i.getAttribute('aria-checked') === 'true'),
+    aba: document.querySelector('.arte__aba[data-formato="story"]').getAttribute('aria-selected'),
+  }
+})
+conferir('Story tem dez molduras', noStory.quantos === 10, String(noStory.quantos))
+conferir('Trocar de formato volta para a primeira moldura', noStory.marcado === 0)
+conferir('A aba de story fica marcada', noStory.aba === 'true')
+
+await pagina.click('.arte__aba[data-formato="perfil"]')
+await espera(200)
+
+/* ---------- 11. Contadores e revelações ao percorrer a página ----------
    Com movimento reduzido o Lenis fica desligado, então window.scrollTo
    funciona, e os IntersectionObserver continuam disparando normalmente, que é
    o que precisa ser provado aqui. */
