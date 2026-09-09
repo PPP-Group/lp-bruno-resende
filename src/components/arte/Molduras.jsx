@@ -47,6 +47,9 @@ export function Molduras({ formato, indice, aoEscolher, ajuda }) {
       role="radiogroup"
       aria-label={ajuda.grade}
       onKeyDown={noTeclado}
+      /* A célula segue a proporção do formato: com célula quadrada, a
+         miniatura de story fica nadando no meio de cinza. */
+      style={{ '--proporcao': `${formato.largura} / ${formato.altura}` }}
     >
       {formato.molduras.map((moldura, i) => {
         const marcada = i === indice
