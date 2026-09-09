@@ -57,8 +57,9 @@ src/components/arte/Arte.jsx        seção, cabeçalho, abas, os três cartões
 src/components/arte/Enquadrar.jsx   cartão 1, canvas de trabalho, gestos, zoom
 src/components/arte/Molduras.jsx    cartão 2, a grade
 src/components/arte/Resultado.jsx   cartão 3, prévia, baixar, compartilhar
-src/lib/desenharArte.js             funções puras, sem DOM
-src/lib/useArte.js                  estado, carga de imagem, redesenho
+src/lib/desenharArte.js             geometria e composição, puras, sem DOM
+src/lib/arteEstado.js               estado inicial e redutor, puros, sem React
+src/lib/useArte.js                  cola com React: carga de imagem e redesenho
 src/styles/arte.css
 scripts/molduras.mjs                baixa, recodifica, emite o manifesto
 public/assets/molduras/perfil/      overlays 2048 × 2048
@@ -70,9 +71,10 @@ Os três cartões da referência já são três responsabilidades distintas e ne
 deles conversa com o outro: os três leem do mesmo hook. É o que justifica a
 divisão em quatro componentes em vez de um só.
 
-`desenharArte.js` não importa React nem toca em DOM. Recebe números e um
-contexto de canvas, devolve números. É a parte que precisa estar certa, e é a
-parte que dá para ler sem montar nada.
+`desenharArte.js` e `arteEstado.js` não importam React nem tocam em DOM. Recebem
+números, devolvem números. São a parte que precisa estar certa, e a parte que dá
+para conferir sem montar nada — o que sustenta a estratégia de teste da seção 13.
+`useArte.js` fica sendo só a cola: `useReducer`, efeitos e cache de imagem.
 
 ## 4. Estado
 
@@ -80,13 +82,17 @@ parte que dá para ler sem montar nada.
 {
   formato: 'perfil' | 'story',
   moldura: 0,                      // índice dentro do formato corrente
-  foto: ImageBitmap | null,
+  foto: null,                      // ou { bitmap, largura, altura }
   zoom: 1,                         // preso entre 1 e 3
   deslocamento: { x: 0, y: 0 },    // FRAÇÃO da largura e da altura do quadro
   erro: null,
-  ocupado: false,
+  carregando: false,
 }
 ```
+
+A foto guarda as medidas ao lado do bitmap porque a geometria da seção 5 é toda
+aritmética: nenhuma daquelas funções precisa de um bitmap, só de largura e
+altura. Assim elas rodam em `node --test` sem navegador nenhum.
 
 O deslocamento em fração é o que sustenta o resto do desenho. O original guarda
 em pixels do canvas de edição e corrige com um fator na hora de exportar; isso
@@ -319,8 +325,12 @@ Nenhum `alert()`. Toda mensagem sai num `[role="status"]` com
 ## 13. Verificação
 
 Este repositório prova comportamento com `scripts/provar.mjs`, em Puppeteer
-sobre o Chrome instalado, e não tem test runner. O porte segue essa convenção
-em vez de acrescentar um.
+sobre o Chrome instalado, e não tem test runner. O porte segue essa convenção em
+vez de acrescentar um.
+
+A geometria e o redutor, por serem puros, ganham testes de unidade em
+`node --test`, que vem embutido no Node e não é dependência nova. Ficam em
+`src/lib/*.teste.js` e rodam em menos de um segundo, sem navegador.
 
 Acrescentar a `provar.mjs`:
 
