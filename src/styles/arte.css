@@ -1,0 +1,91 @@
+/* ============================================================================
+   SUA ARTE
+   ----------------------------------------------------------------------------
+   Conquistas é escura e Contato é branco puro. O papel no meio faz o degrau
+   entre as duas e evita dois brancos colados.
+   ========================================================================== */
+
+.arte {
+  background: var(--color-papel);
+}
+
+.arte__cabeca {
+  max-width: var(--largura-leitura);
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+/* ---------- Abas de formato ---------- */
+
+.arte__abas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.arte__aba {
+  cursor: pointer;
+  border: 0;
+}
+
+/* ---------- Os três cartões ---------- */
+
+.arte__painel {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .arte__painel {
+    grid-template-columns: 1.35fr 1fr 1.1fr;
+  }
+}
+
+.arte__cartao {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1.1rem, 2vw, 1.5rem);
+}
+
+.arte__passo {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0;
+  font-family: var(--font-campanha);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-mar);
+}
+
+/* O número em rosa: no sistema da página, rosa marca o ponto onde o cuidado
+   toca. Aqui é onde a pessoa entra na campanha. */
+.arte__passo-num {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.5rem;
+  background: var(--color-rosa);
+  color: #fff;
+  font-size: 1rem;
+}
+
+/* ---------- Aviso ---------- */
+
+.arte__aviso {
+  margin-top: 1.25rem;
+  min-height: 1.5rem;
+  font-size: var(--text-mini);
+  color: var(--color-tinta-fraca);
+}
+
+.arte__aviso[data-erro='true'] {
+  font-weight: 600;
+  color: color-mix(in oklab, var(--color-rosa) 80%, var(--color-tinta));
+}

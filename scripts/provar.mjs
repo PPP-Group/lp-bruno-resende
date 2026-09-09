@@ -14,9 +14,18 @@ const navegador = await puppeteer.launch({
 
 const espera = (ms) => new Promise((r) => setTimeout(r, ms))
 const resultados = []
+const pulados = []
 const conferir = (nome, ok, detalhe = '') => {
   resultados.push({ nome, ok, detalhe })
   console.log(`${ok ? 'OK  ' : 'FALHA'} ${nome}${detalhe ? `, ${detalhe}` : ''}`)
+}
+
+/* Prova de uma parte da página que não existe mais. Não vira OK e não vira
+   FALHA: fica visível no rodapé até alguém decidir se o recurso volta ou se a
+   prova sai junto com ele. */
+const pular = (nome, motivo) => {
+  pulados.push({ nome, motivo })
+  console.log(`PULADO ${nome}, ${motivo}`)
 }
 
 const pagina = await navegador.newPage()
@@ -52,11 +61,17 @@ for (const largura of [360, 390, 768, 1024, 1440, 1920]) {
   conferir(`Sem rolagem lateral em ${largura}px`, r.doc <= r.tela + 1, `doc ${r.doc} / tela ${r.tela}`)
 }
 
-/* ---------- 3. A urna só reconhece o número certo ---------- */
+/* ---------- 3. A urna só reconhece o número certo ----------
+   O simulador de urna saiu da página em algum momento e esta prova ficou para
+   trás, quebrando a suíte inteira num TypeError antes de chegar às de baixo.
+   Enquanto ninguém decide se ele volta, a prova se anuncia como pulada. */
 await pagina.setViewport({ width: 1440, height: 900 })
 await espera(300)
-await pagina.evaluate(() => document.getElementById('urna').scrollIntoView())
-await espera(600)
+
+const temUrna = await pagina.evaluate(() => !!document.getElementById('urna'))
+if (!temUrna) {
+  pular('Simulador de urna', 'a seção #urna não existe mais na página')
+}
 
 const teclar = async (numero) => {
   const teclas = await pagina.$$('.urna__tecla')
@@ -78,30 +93,35 @@ const limpar = async () => {
   await espera(200)
 }
 
-await teclar('4400')
-let estado = await pagina.evaluate(() => ({
-  cartao: Boolean(document.querySelector('.urna__cartao')),
-  nulo: Boolean(document.querySelector('.urna__nulo')),
-  nome: document.querySelector('.urna__cartao strong')?.textContent,
-}))
-conferir('4400 mostra o candidato', estado.cartao &&!estado.nulo, estado.nome ?? '')
+if (temUrna) {
+  await pagina.evaluate(() => document.getElementById('urna').scrollIntoView())
+  await espera(600)
 
-await limpar()
-await teclar('1234')
-estado = await pagina.evaluate(() => ({
-  cartao: Boolean(document.querySelector('.urna__cartao')),
-  nulo: Boolean(document.querySelector('.urna__nulo')),
-}))
-conferir('1234 dá voto nulo', estado.nulo &&!estado.cartao)
+  await teclar('4400')
+  let estado = await pagina.evaluate(() => ({
+    cartao: Boolean(document.querySelector('.urna__cartao')),
+    nulo: Boolean(document.querySelector('.urna__nulo')),
+    nome: document.querySelector('.urna__cartao strong')?.textContent,
+  }))
+  conferir('4400 mostra o candidato', estado.cartao &&!estado.nulo, estado.nome ?? '')
 
-await limpar()
-await teclar('4040')
-estado = await pagina.evaluate(() => ({
-  cartao: Boolean(document.querySelector('.urna__cartao')),
-  nulo: Boolean(document.querySelector('.urna__nulo')),
-}))
-conferir('4040 (dígitos certos, ordem errada) dá voto nulo', estado.nulo &&!estado.cartao)
-await limpar()
+  await limpar()
+  await teclar('1234')
+  estado = await pagina.evaluate(() => ({
+    cartao: Boolean(document.querySelector('.urna__cartao')),
+    nulo: Boolean(document.querySelector('.urna__nulo')),
+  }))
+  conferir('1234 dá voto nulo', estado.nulo &&!estado.cartao)
+
+  await limpar()
+  await teclar('4040')
+  estado = await pagina.evaluate(() => ({
+    cartao: Boolean(document.querySelector('.urna__cartao')),
+    nulo: Boolean(document.querySelector('.urna__nulo')),
+  }))
+  conferir('4040 (dígitos certos, ordem errada) dá voto nulo', estado.nulo &&!estado.cartao)
+  await limpar()
+}
 
 /* ---------- 4. Sanfona das propostas ---------- */
 const eixos = await pagina.evaluate(() => {
@@ -177,7 +197,46 @@ const campos = await pagina.evaluate(() => {
 })
 conferir('Todo campo tem rótulo', campos.length === 0, campos.join(', '))
 
-/* ---------- 9. Contadores e revelações ao percorrer a página ----------
+/* ---------- 9. Gerador de artes: a seção existe e está no lugar ---------- */
+await pagina.setViewport({ width: 1440, height: 900 })
+await espera(300)
+
+const secaoArte = await pagina.evaluate(() => {
+  const secao = document.getElementById('arte')
+  if (!secao) return null
+
+  const ordem = [...document.querySelectorAll('main section[id]')].map((s) => s.id)
+  const abas = [...document.querySelectorAll('.arte__aba')].map((b) => ({
+    formato: b.dataset.formato,
+    marcada: b.getAttribute('aria-selected'),
+  }))
+
+  return {
+    ordem,
+    abas,
+    aviso: !!secao.querySelector('.arte__aviso[role="status"]'),
+    noMenu: [...document.querySelectorAll('.nav a')].some((a) => a.getAttribute('href') === '#arte'),
+  }
+})
+
+conferir('Seção de artes existe', secaoArte !== null)
+conferir(
+  'Seção de artes fica entre conquistas e contato',
+  secaoArte?.ordem.indexOf('arte') === secaoArte?.ordem.indexOf('conquistas') + 1 &&
+    secaoArte?.ordem.indexOf('contato') === secaoArte?.ordem.indexOf('arte') + 1,
+  secaoArte?.ordem.join(' > '),
+)
+conferir('Seção de artes está no menu', secaoArte?.noMenu === true)
+conferir(
+  'Duas abas de formato, perfil marcada',
+  secaoArte?.abas.length === 2 &&
+    secaoArte.abas[0].formato === 'perfil' &&
+    secaoArte.abas[0].marcada === 'true',
+  secaoArte?.abas.map((a) => `${a.formato}:${a.marcada}`).join(' '),
+)
+conferir('Seção de artes tem região de aviso', secaoArte?.aviso === true)
+
+/* ---------- 10. Contadores e revelações ao percorrer a página ----------
    Com movimento reduzido o Lenis fica desligado, então window.scrollTo
    funciona, e os IntersectionObserver continuam disparando normalmente, que é
    o que precisa ser provado aqui. */
@@ -210,4 +269,5 @@ await navegador.close()
 
 const falhas = resultados.filter((r) =>!r.ok)
 console.log(`\n${resultados.length - falhas.length}/${resultados.length} provas passaram`)
+for (const p of pulados) console.log(`PULADA: ${p.nome}, ${p.motivo}`)
 process.exit(falhas.length ? 1 : 0)

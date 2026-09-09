@@ -445,6 +445,94 @@ export const candidato = {
   },
 
   /* --------------------------------------------------------------------------
+     05 · SUA ARTE
+     ------------------------------------------------------------------------
+     As molduras são as mesmas do site antigo. Os caminhos dos arquivos não
+     ficam aqui: são derivados do id e do formato em src/lib/useArte.js, para
+     que renomear uma pasta não obrigue a mexer em dezoito linhas.
+
+     Para refazer os arquivos, `npm run molduras`.
+     ---------------------------------------------------------------------- */
+  arte: {
+    rotulo: 'Apoie nas redes',
+    titulo: 'Leve a campanha na sua foto.',
+    chamada:
+      'Escolha uma moldura, ajuste o enquadramento e baixe a arte pronta para o seu perfil ou para o seu story. Leva menos de um minuto, e a sua foto não sai do seu aparelho.',
+
+    passos: ['Ajuste sua foto', 'Escolha a moldura', 'Sua arte'],
+
+    formatos: [
+      {
+        id: 'perfil',
+        rotulo: 'Foto do perfil',
+        largura: 2048,
+        altura: 2048,
+        arquivo: 'foto-perfil-dr-bruno-resende-4400.png',
+        molduras: [
+          { id: 'perfil-01', rotulo: 'Moldura 1' },
+          { id: 'perfil-02', rotulo: 'Moldura 2' },
+          { id: 'perfil-03', rotulo: 'Moldura 3' },
+          { id: 'perfil-04', rotulo: 'Moldura 4' },
+          { id: 'perfil-05', rotulo: 'Moldura 5' },
+          { id: 'perfil-06', rotulo: 'Moldura 6' },
+          { id: 'perfil-07', rotulo: 'Moldura 7' },
+          { id: 'perfil-08', rotulo: 'Moldura 8' },
+        ],
+      },
+      {
+        id: 'story',
+        rotulo: 'Story',
+        largura: 1080,
+        altura: 1920,
+        arquivo: 'story-dr-bruno-resende-4400.png',
+        molduras: [
+          { id: 'story-01', rotulo: 'Moldura 1' },
+          { id: 'story-02', rotulo: 'Moldura 2' },
+          { id: 'story-03', rotulo: 'Moldura 3' },
+          { id: 'story-04', rotulo: 'Moldura 4' },
+          { id: 'story-05', rotulo: 'Moldura 5' },
+          { id: 'story-06', rotulo: 'Moldura 6' },
+          { id: 'story-07', rotulo: 'Moldura 7' },
+          { id: 'story-08', rotulo: 'Moldura 8' },
+          { id: 'story-09', rotulo: 'Moldura 9' },
+          { id: 'story-10', rotulo: 'Moldura 10' },
+        ],
+      },
+    ],
+
+    /* Textos de estado. Ficam aqui, e não no componente, pela mesma regra que
+       vale para o resto da página. */
+    avisos: {
+      semFoto: 'Escolha uma foto para começar.',
+      carregando: 'Preparando a sua foto…',
+      pronta: 'Pronto. Baixe a sua arte.',
+      tipo: 'Esse arquivo não é uma imagem. Escolha uma foto em JPG, PNG ou WEBP.',
+      tamanho: 'Essa imagem passa de 25 MB. Escolha uma foto menor.',
+      leitura: 'Não foi possível abrir essa imagem. Tente outra.',
+      moldura: 'A moldura não carregou. Confira a conexão e escolha de novo.',
+      semPartilha: 'Seu navegador não compartilha arquivos direto. A arte foi baixada.',
+    },
+
+    acoes: {
+      escolher: 'Escolher foto',
+      trocar: 'Trocar foto',
+      redefinir: 'Redefinir',
+      baixar: 'Baixar PNG',
+      compartilhar: 'Compartilhar',
+    },
+
+    ajuda: {
+      arrastar: 'Arraste para enquadrar. Use a roda do mouse ou dois dedos para aproximar e afastar.',
+      teclado:
+        'Com o enquadramento em foco: as setas movem a foto, Shift com seta move mais rápido, mais e menos mudam a aproximação, e Home volta ao enquadramento inicial.',
+      grade: 'Molduras disponíveis',
+      zoom: 'Aproximação',
+    },
+
+    medida: (formato, largura, altura) => `${formato} • PNG ${largura} × ${altura} px`,
+  },
+
+  /* --------------------------------------------------------------------------
      06 · CONTATO / PARTICIPE
      ------------------------------------------------------------------------ */
   contato: {
@@ -509,6 +597,7 @@ export const secoes = [
   { id: 'sobre', rotulo: 'Sobre' },
   { id: 'propostas', rotulo: 'Propostas' },
   { id: 'conquistas', rotulo: 'Conquistas' },
+  { id: 'arte', rotulo: 'Sua arte' },
   { id: 'contato', rotulo: 'Contato' },
 ]
 
