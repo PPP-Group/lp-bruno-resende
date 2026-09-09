@@ -188,9 +188,16 @@ entra numa landing page.
 
 `scripts/molduras.mjs` baixa os originais e recodifica em WebP com alfa,
 gravando duas saídas por moldura: o overlay em tamanho nativo e uma miniatura
-de 320px para a grade. Tenta `lossless` primeiro; nas molduras em que o
-resultado ainda ficar acima do teto por arquivo, refaz com
-`{ quality: 92, alphaQuality: 100, effort: 6 }`.
+de 320px para a grade. A compressão é uma escada: `lossless`, e daí
+`quality` 92, 88, 84, 80, 75, 70, parando na primeira que couber no teto do
+arquivo. Cada moldura fica assim na melhor qualidade que o orçamento permite,
+em vez de todas caírem para o pior caso de uma delas.
+
+O degrau mais fundo existe por causa de uma moldura só, `perfil-07`, que tem
+6,1 MB de PNG por causa do grão fino no azul de fundo — exatamente o que o WebP
+com perda descarta barato. Conferido a 1:1 contra o original: nem a letra branca
+nem o número mudam. As molduras de cor chapada param em lossless ou q92 e nunca
+descem a escada.
 
 **Orçamento: 4 MB para os 36 arquivos**, com teto de 200 KB por overlay e 20 KB
 por miniatura. Os dezoito overlays no teto dão 3,6 MB e as dezoito miniaturas
