@@ -413,6 +413,56 @@ conferir(
   await pagina.evaluate((e) => e.min === '1' && e.max === '3', zoom),
 )
 
+/* A roda do mouse sobre o enquadramento aproxima, e a página NÃO rola.
+   O React registra wheel como listener passivo no contêiner raiz, então um
+   preventDefault vindo de onWheel é engolido: só listener nativo com
+   passive:false segura a página. É esse caminho que a prova cobre. */
+const caixaPalco = await pagina.evaluate(() => {
+  const r = document.querySelector('.enquadrar__palco').getBoundingClientRect()
+  return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) }
+})
+
+const antesDaRoda = await pagina.evaluate(() => ({
+  rolagem: Math.round(window.scrollY),
+  zoom: Number(document.querySelector('.enquadrar__zoom').value),
+}))
+
+await pagina.mouse.move(caixaPalco.x, caixaPalco.y)
+await pagina.mouse.wheel({ deltaY: -240 })
+await espera(300)
+
+const depoisDaRoda = await pagina.evaluate(() => ({
+  rolagem: Math.round(window.scrollY),
+  zoom: Number(document.querySelector('.enquadrar__zoom').value),
+}))
+
+conferir(
+  'Roda sobre o enquadramento aproxima a foto',
+  depoisDaRoda.zoom > antesDaRoda.zoom,
+  `${antesDaRoda.zoom} para ${depoisDaRoda.zoom}`,
+)
+conferir(
+  'Roda sobre o enquadramento não rola a página',
+  depoisDaRoda.rolagem === antesDaRoda.rolagem,
+  `${antesDaRoda.rolagem} para ${depoisDaRoda.rolagem}`,
+)
+
+// E fora do enquadramento a roda continua rolando a página, como deve.
+await pagina.mouse.move(20, 400)
+await pagina.mouse.wheel({ deltaY: 240 })
+await espera(300)
+const foraDoPalco = await pagina.evaluate(() => Math.round(window.scrollY))
+conferir(
+  'Fora do enquadramento a roda ainda rola a página',
+  foraDoPalco > depoisDaRoda.rolagem,
+  `${depoisDaRoda.rolagem} para ${foraDoPalco}`,
+)
+
+await pagina.evaluate(() => document.getElementById('arte').scrollIntoView())
+await espera(300)
+await pagina.evaluate(() => document.querySelector('.enquadrar__redefinir').click())
+await espera(300)
+
 // Trocar de moldura tem de mudar o que está desenhado, não só o aria-checked.
 const antesDaMoldura = await assinar()
 await pagina.click('.molduras__opcao[data-id="perfil-03"]')
