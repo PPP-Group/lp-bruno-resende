@@ -28,3 +28,16 @@
 [phases.setup]
 nixPkgs = ["nodejs_22", "npm-9_x"]
 aptPkgs = []
+
+# ----------------------------------------------------------------------------
+# O Caddyfile que o Easypanel gera sozinho fica dentro do container, em
+# /assets/Caddyfile -- não há como ver o que ele escreve ali nem revisar
+# antes do deploy. Depois de corrigir o build (acima) o site ainda abriu em
+# branco, e sem enxergar aquele arquivo não dá para saber se a raiz apontava
+# para a pasta certa. Em vez de adivinhar, o start aponta para um Caddyfile
+# nosso, versionado na raiz do repositório -- ele viaja junto com o `COPY .
+# /app/.` que o build já faz, e fica revisável como qualquer outro arquivo.
+# ----------------------------------------------------------------------------
+
+[start]
+cmd = "caddy run --config Caddyfile --adapter caddyfile"

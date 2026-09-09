@@ -1,0 +1,21 @@
+# ============================================================================
+# CADDY, SERVIDOR DE PRODUÇÃO
+# ----------------------------------------------------------------------------
+# O Easypanel/Nixpacks gera um Caddyfile próprio dentro do container
+# (/assets/Caddyfile), e não há como ver ou versionar o que ele escreve ali.
+# Depois do build correto (nixpacks.toml, node 22, sem Chromium) o site abriu
+# em branco mesmo assim -- e sem enxergar aquele arquivo não dá para saber se
+# a raiz apontava para a pasta certa. Este arquivo tira a adivinhação: fica no
+# repositório, é revisável, e nixpacks.toml aponta o start para ele.
+#
+# `try_files {path} /index.html` é o padrão de hospedagem de SPA da própria
+# documentação do Caddy: pede o arquivo pedido e, se não existir (uma rota que
+# só existe no lado do cliente), cai para index.html.
+# ============================================================================
+
+:{$PORT:80} {
+	root * dist
+	encode gzip
+	try_files {path} /index.html
+	file_server
+}
