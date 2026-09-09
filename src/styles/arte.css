@@ -249,3 +249,45 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* ---------- Resultado ---------- */
+
+.resultado__palco {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  background-color: var(--color-papel-alto);
+  background-image: repeating-conic-gradient(
+    var(--color-papel-fundo) 0% 25%,
+    var(--color-papel-alto) 0% 50%
+  );
+  background-size: 18px 18px;
+}
+
+.resultado__previa {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.resultado__medida {
+  margin: 0;
+  text-align: center;
+  font-size: var(--text-mini);
+  color: var(--color-tinta-fraca);
+}
+
+.resultado__baixar,
+.resultado__compartilhar {
+  width: 100%;
+  cursor: pointer;
+  border: 0;
+}
+
+.resultado__baixar:disabled,
+.resultado__compartilhar:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}

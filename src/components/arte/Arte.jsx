@@ -3,11 +3,13 @@ import { useRevelar } from '../../lib/useRevelar.js'
 import { useArte } from '../../lib/useArte.js'
 import { Molduras } from './Molduras.jsx'
 import { Enquadrar } from './Enquadrar.jsx'
+import { Resultado } from './Resultado.jsx'
 
 export function Arte() {
   const { arte } = candidato
   const [ref, visivel] = useRevelar()
-  const { estado, despachar, formato, quadro, cena, escolherFoto } = useArte(arte.formatos)
+  const { estado, despachar, formato, quadro, cena, molduraPronta, escolherFoto, exportar } =
+    useArte(arte.formatos)
 
   /* Setas circulam entre as abas, como manda o padrão de tablist. */
   const abasNoTeclado = (e) => {
@@ -96,6 +98,15 @@ export function Arte() {
               <span className="arte__passo-num">3</span>
               {arte.passos[2]}
             </h3>
+            <Resultado
+              quadro={quadro}
+              cena={cena}
+              formato={formato}
+              pronto={!!estado.foto && molduraPronta}
+              aoExportar={exportar}
+              aoAvisar={(mensagem) => despachar({ tipo: 'erro', mensagem })}
+              textos={arte}
+            />
           </article>
         </div>
 

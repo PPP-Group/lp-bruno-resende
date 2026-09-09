@@ -436,7 +436,85 @@ conferir(
 await pagina.click('.arte__aba[data-formato="perfil"]')
 await espera(600)
 
-/* ---------- 12. Contadores e revelações ao percorrer a página ----------
+/* ---------- 12. Gerador de artes: resultado e download ---------- */
+const previa = await pagina.evaluate(() => {
+  const c = document.querySelector('.resultado__previa')
+  if (!c) return null
+  const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data
+  let opacos = 0
+  for (let i = 3; i < d.length; i += 4) if (d[i] > 0) opacos++
+  return {
+    opacos,
+    total: d.length / 4,
+    medida: document.querySelector('.resultado__medida')?.textContent,
+  }
+})
+conferir('Prévia desenha a mesma cena', previa?.opacos === previa?.total)
+conferir('A medida do arquivo é anunciada', /2048/.test(previa?.medida ?? ''), previa?.medida)
+
+const cdp = await pagina.createCDPSession()
+await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: pasta })
+
+await pagina.click('.resultado__baixar')
+for (let i = 0; i < 40; i++) {
+  const arquivos = await readdir(pasta)
+  if (arquivos.some((a) => a.endsWith('.png') && a !== 'foto.png')) break
+  await espera(250)
+}
+
+const baixados = (await readdir(pasta)).filter((a) => a.endsWith('.png') && a !== 'foto.png')
+conferir(
+  'O arquivo baixado tem o nome da campanha',
+  baixados[0] === 'foto-perfil-dr-bruno-resende-4400.png',
+  baixados.join(', '),
+)
+
+const png = await readFile(join(pasta, baixados[0]))
+const dim = dimensoesPng(png)
+conferir('O arquivo baixado é PNG de verdade', dim.assinatura === true)
+conferir(
+  'Perfil sai em 2048 x 2048',
+  dim.largura === 2048 && dim.altura === 2048,
+  `${dim.largura} x ${dim.altura}`,
+)
+
+await pagina.click('.arte__aba[data-formato="story"]')
+await espera(900)
+await pagina.click('.resultado__baixar')
+for (let i = 0; i < 40; i++) {
+  const arquivos = await readdir(pasta)
+  if (arquivos.some((a) => a.startsWith('story-'))) break
+  await espera(250)
+}
+const doStory = (await readdir(pasta)).find((a) => a.startsWith('story-'))
+conferir('O story também baixa', doStory === 'story-dr-bruno-resende-4400.png', String(doStory))
+
+const dimStory = dimensoesPng(await readFile(join(pasta, doStory)))
+conferir(
+  'Story sai em 1080 x 1920',
+  dimStory.largura === 1080 && dimStory.altura === 1920,
+  `${dimStory.largura} x ${dimStory.altura}`,
+)
+
+await pagina.click('.arte__aba[data-formato="perfil"]')
+await espera(500)
+
+/* Nenhum alvo de toque abaixo de 44px na largura mais apertada. */
+await pagina.setViewport({ width: 360, height: 800 })
+await espera(600)
+const alvos = await pagina.evaluate(() => {
+  const seletor = '#arte button, #arte label.btn, #arte input[type="range"]'
+  return [...document.querySelectorAll(seletor)]
+    .map((e) => ({ classe: e.className, altura: Math.round(e.getBoundingClientRect().height) }))
+    .filter((e) => e.altura > 0 && e.altura < 44)
+})
+conferir(
+  'Nenhum alvo de toque abaixo de 44px em 360px',
+  alvos.length === 0,
+  alvos.map((a) => `${a.classe}:${a.altura}`).join(' | '),
+)
+
+/* ---------- 13. Contadores e revelações ao percorrer a página ----------
    Com movimento reduzido o Lenis fica desligado, então window.scrollTo
    funciona, e os IntersectionObserver continuam disparando normalmente, que é
    o que precisa ser provado aqui. */
