@@ -1,0 +1,23 @@
+# ============================================================================
+# NIXPACKS
+# ----------------------------------------------------------------------------
+# O Nixpacks acha `puppeteer-core` em devDependencies -- usado só pelos
+# scripts de prova em scripts/ (provar.mjs, shots.mjs, barra.mjs), rodados na
+# máquina de quem desenvolve, nunca no deploy -- e por padrão instala o
+# Chromium do sistema para viabilizá-lo.
+#
+# No Ubuntu 24.04 esse pacote é um invólucro para snap, e o snap precisa do
+# systemd rodando como PID 1 para configurar o pacote. Um build Docker não
+# tem isso: o passo trava ou falha, arrastando consigo cerca de 150 pacotes e
+# 500 MB (snapd, apparmor, o próprio systemd) que um site estático servido
+# por Caddy nunca usa.
+#
+# Esta seção substitui só a fase de setup, com nodejs e npm e nada mais. As
+# demais fases (install, build, a que serve o Caddy) continuam como o
+# Nixpacks/Easypanel já detectam sozinhos -- nixpacks.toml só sobrescreve as
+# fases que ele lista.
+# ============================================================================
+
+[phases.setup]
+nixPkgs = ["nodejs_18", "npm-9_x"]
+aptPkgs = []
