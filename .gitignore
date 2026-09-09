@@ -4,4 +4,10 @@ shots/
 .DS_Store
 *.local
 identidade/
-docs/
+
+# O material bruto da campanha (briefing, apresentações, ZIPs) fica fora: é
+# pesado e não é código. Os projetos e planos escritos aqui dentro entram.
+# `docs/*` em vez de `docs/`: com o diretório inteiro ignorado o git não desce
+# nele e a exceção abaixo nunca seria avaliada.
+docs/*
+!docs/superpowers/
