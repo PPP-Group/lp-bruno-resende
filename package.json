@@ -9,7 +9,8 @@
     "start": "vite",
     "build": "vite build",
     "preview": "vite preview --port 4173",
-    "molduras": "node scripts/molduras.mjs"
+    "molduras": "node scripts/molduras.mjs",
+    "provar:unidade": "node --test \"src/lib/*.teste.js\""
   },
   "dependencies": {
     "@fontsource-variable/epilogue": "^5.0.0",
