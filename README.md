@@ -91,6 +91,22 @@ reaparece no celular e vaza para fora da tela. Não reordene sem testar em 390px
 
 ## Peças que não são óbvias
 
+**O gerador de artes** (`src/components/arte/`) compõe a foto da pessoa sob uma
+moldura da campanha e entrega o PNG pronto. Duas decisões carregam o resto:
+
+O deslocamento da foto é guardado em **fração do quadro**, não em pixels. Com
+isso a mesma cena desenha idêntica na prévia de 240px, no canvas de trabalho e no
+arquivo de 2048px, sem recalcular nada — e é o que permite o canvas de trabalho
+ter o tamanho da tela (uns 430px) em vez do tamanho do arquivo. O plugin do site
+antigo mantinha dois canvases de 2048 × 2048 no ar, 33 MB de bitmap, e redesenhava
+os dois a cada evento de arraste. Aqui o tamanho nativo só existe no instante da
+exportação.
+
+A geometria (`src/lib/desenharArte.js`) e o estado (`src/lib/arteEstado.js`) são
+puros: nenhum React, nenhum DOM. É o que os torna conferíveis por `node --test`.
+`src/lib/useArte.js` é só a cola.
+
+
 **O mapa do cuidado** (`src/components/conquistas/MapaCuidado.jsx`) posiciona
 cada município pela coordenada geográfica real dentro da silhueta do manual, que
 é cartograficamente fiel (proporção 0,617 contra 0,616 do Estado real). A
@@ -200,20 +216,54 @@ Extraídos em vetor dos PDFs originais, em `public/assets/`:
 | `hero-pg10.jpg` | O cartaz do herói (página 10), sem o CNPJ fictício, de fora a fora |
 | `bruno-retrato.jpg` · `bruno-sobre.jpg` · `bruno-rosto.jpg` | Recortes do pôster e do banner oficiais |
 
+### As molduras do gerador de artes
+
+`public/assets/molduras/` guarda as dezoito molduras da seção **Sua arte**: oito
+de foto de perfil (2048 × 2048) e dez de story (1080 × 1920), mais uma miniatura
+de 320px de cada uma para a grade.
+
+Elas vêm do plugin do site antigo e não são editadas à mão. Para refazer:
+
+```bash
+npm run molduras
+```
+
+O script baixa os PNGs de origem, confere as dimensões e recodifica em WebP com
+alfa, descendo uma escada de qualidade (lossless, depois 92, 88, 84, 80, 75, 70)
+até cada arquivo caber em 200 KB. Ele falha se algum estourar esse teto ou se o
+conjunto passar de 4 MB. Os originais somam 29 MB; o resultado, 3 MB.
+
+Trocar uma moldura é acrescentar a linha em `candidato.js` — o caminho do arquivo
+é derivado do `id`, não escrito no dado.
+
 ---
 
 ## Conferência
 
 ```bash
-node scripts/provar.mjs # 19 provas de comportamento
+npm run provar:unidade # 22 testes de unidade, sem navegador
+node scripts/provar.mjs # 50 provas de comportamento
 node scripts/shots.mjs shots # capturas desktop e mobile
 node scripts/barra.mjs # barra de rolagem na cor da campanha (após build)
 ```
 
+`provar:unidade` usa o `node --test` embutido no Node, sem dependência nova.
+Cobre a geometria do gerador de artes (`desenharArte.js`) e o redutor da seção
+(`arteEstado.js`), que são puros de propósito para poderem ser conferidos sem
+montar navegador nenhum.
+
 `provar.mjs` cobre: a fonte de campanha carregada, ausência de rolagem lateral em
-seis larguras, a regra do voto nulo, a sanfona das propostas, os municípios
-caindo dentro do contorno do Estado, rótulo em todo alvo focável e em todo campo
-de formulário, os contadores chegando ao valor final e o console limpo.
+seis larguras, a sanfona das propostas, os municípios caindo dentro do contorno
+do Estado, rótulo em todo alvo focável e em todo campo de formulário, os
+contadores chegando ao valor final e o console limpo. No gerador de artes, cobre
+a posição da seção na página, a grade como radiogroup com teclado, o envio de uma
+foto gerada na hora, o enquadramento preso na borda, e o PNG baixado de verdade
+pelo Chrome com as dimensões lidas do cabeçalho: 2048 × 2048 e 1080 × 1920.
+
+**Uma prova está pulada.** A do simulador de urna: a seção `#urna` não existe
+mais na página e a prova ficou para trás, quebrando a suíte inteira num
+`TypeError`. Ela se anuncia como `PULADA` no rodapé da saída. Quando alguém
+decidir se o simulador volta, ou ela volta a rodar ou sai junto com ele.
 
 `barra.mjs` cobre as oito regras da barra de rolagem: largura, alça na cor de
 marca e em rosa ao passar, e trilho, canto, track-piece e setas todos
