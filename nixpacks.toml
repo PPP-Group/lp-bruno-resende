@@ -16,8 +16,15 @@
 # demais fases (install, build, a que serve o Caddy) continuam como o
 # Nixpacks/Easypanel já detectam sozinhos -- nixpacks.toml só sobrescreve as
 # fases que ele lista.
+#
+# nodejs_18: o Nixpacks detectava esse valor sozinho antes desta sobrescrita
+# (não há engines em package.json), e a primeira versão deste arquivo copiou
+# o mesmo número sem checar se ainda servia. Não serve: @tailwindcss/oxide
+# exige Node >= 20 e sharp exige >= 20.9 para o binário nativo delas, e sem
+# a versão certa `npm ci` instala mas o binário não carrega -- falha só na
+# hora do build, não na instalação. nodejs_22 cobre as duas com folga.
 # ============================================================================
 
 [phases.setup]
-nixPkgs = ["nodejs_18", "npm-9_x"]
+nixPkgs = ["nodejs_22", "npm-9_x"]
 aptPkgs = []

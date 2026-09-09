@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Landing page de campanha - Dr. Bruno Resende 4400 - Deputado Federal ES",
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "dev": "vite",
     "start": "vite",
