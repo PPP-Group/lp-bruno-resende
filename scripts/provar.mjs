@@ -1,6 +1,11 @@
 /* Provas de comportamento, o que captura de tela não mostra.
    Uso: URL_ALVO=http://localhost:PORTA node scripts/provar.mjs */
 
+import { mkdtemp, writeFile, readdir, readFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import zlib from 'node:zlib'
+
 import puppeteer from 'puppeteer-core'
 
 const URL = process.env.URL_ALVO ?? 'http://localhost:5181'
@@ -14,10 +19,64 @@ const navegador = await puppeteer.launch({
 
 const espera = (ms) => new Promise((r) => setTimeout(r, ms))
 const resultados = []
+const pulados = []
 const conferir = (nome, ok, detalhe = '') => {
   resultados.push({ nome, ok, detalhe })
   console.log(`${ok ? 'OK  ' : 'FALHA'} ${nome}${detalhe ? `, ${detalhe}` : ''}`)
 }
+
+/* Prova de uma parte da página que não existe mais. Não vira OK e não vira
+   FALHA: fica visível no rodapé até alguém decidir se o recurso volta ou se a
+   prova sai junto com ele. */
+const pular = (nome, motivo) => {
+  pulados.push({ nome, motivo })
+  console.log(`PULADO ${nome}, ${motivo}`)
+}
+
+/* Um PNG de teste, gerado na hora: nada binário entra no repositório. As
+   dimensões são deitadas de propósito, para exercitar o cover num quadro
+   quadrado. Cada quadrante tem uma cor, o que faz dar para perceber que o
+   desenho mudou depois de arrastar. */
+const pngDeTeste = (largura = 1200, altura = 600) => {
+  const cru = Buffer.alloc((largura * 3 + 1) * altura)
+  let p = 0
+  for (let y = 0; y < altura; y++) {
+    cru[p++] = 0 // filtro da linha: nenhum
+    for (let x = 0; x < largura; x++) {
+      cru[p++] = x < largura / 2 ? 230 : 20
+      cru[p++] = y < altura / 2 ? 200 : 40
+      cru[p++] = 120
+    }
+  }
+
+  const pedaco = (tipo, dados) => {
+    const corpo = Buffer.concat([Buffer.from(tipo, 'ascii'), dados])
+    const tam = Buffer.alloc(4)
+    tam.writeUInt32BE(dados.length)
+    const crc = Buffer.alloc(4)
+    crc.writeUInt32BE(zlib.crc32(corpo))
+    return Buffer.concat([tam, corpo, crc])
+  }
+
+  const ihdr = Buffer.alloc(13)
+  ihdr.writeUInt32BE(largura, 0)
+  ihdr.writeUInt32BE(altura, 4)
+  ihdr[8] = 8 // 8 bits por canal
+  ihdr[9] = 2 // truecolor, sem alfa
+
+  return Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    pedaco('IHDR', ihdr),
+    pedaco('IDAT', zlib.deflateSync(cru)),
+    pedaco('IEND', Buffer.alloc(0)),
+  ])
+}
+
+const dimensoesPng = (buf) => ({
+  assinatura: buf.subarray(0, 8).toString('hex') === '89504e470d0a1a0a',
+  largura: buf.readUInt32BE(16),
+  altura: buf.readUInt32BE(20),
+})
 
 const pagina = await navegador.newPage()
 await pagina.setViewport({ width: 1440, height: 900 })
@@ -52,11 +111,17 @@ for (const largura of [360, 390, 768, 1024, 1440, 1920]) {
   conferir(`Sem rolagem lateral em ${largura}px`, r.doc <= r.tela + 1, `doc ${r.doc} / tela ${r.tela}`)
 }
 
-/* ---------- 3. A urna só reconhece o número certo ---------- */
+/* ---------- 3. A urna só reconhece o número certo ----------
+   O simulador de urna saiu da página em algum momento e esta prova ficou para
+   trás, quebrando a suíte inteira num TypeError antes de chegar às de baixo.
+   Enquanto ninguém decide se ele volta, a prova se anuncia como pulada. */
 await pagina.setViewport({ width: 1440, height: 900 })
 await espera(300)
-await pagina.evaluate(() => document.getElementById('urna').scrollIntoView())
-await espera(600)
+
+const temUrna = await pagina.evaluate(() => !!document.getElementById('urna'))
+if (!temUrna) {
+  pular('Simulador de urna', 'a seção #urna não existe mais na página')
+}
 
 const teclar = async (numero) => {
   const teclas = await pagina.$$('.urna__tecla')
@@ -78,30 +143,35 @@ const limpar = async () => {
   await espera(200)
 }
 
-await teclar('4400')
-let estado = await pagina.evaluate(() => ({
-  cartao: Boolean(document.querySelector('.urna__cartao')),
-  nulo: Boolean(document.querySelector('.urna__nulo')),
-  nome: document.querySelector('.urna__cartao strong')?.textContent,
-}))
-conferir('4400 mostra o candidato', estado.cartao &&!estado.nulo, estado.nome ?? '')
+if (temUrna) {
+  await pagina.evaluate(() => document.getElementById('urna').scrollIntoView())
+  await espera(600)
 
-await limpar()
-await teclar('1234')
-estado = await pagina.evaluate(() => ({
-  cartao: Boolean(document.querySelector('.urna__cartao')),
-  nulo: Boolean(document.querySelector('.urna__nulo')),
-}))
-conferir('1234 dá voto nulo', estado.nulo &&!estado.cartao)
+  await teclar('4400')
+  let estado = await pagina.evaluate(() => ({
+    cartao: Boolean(document.querySelector('.urna__cartao')),
+    nulo: Boolean(document.querySelector('.urna__nulo')),
+    nome: document.querySelector('.urna__cartao strong')?.textContent,
+  }))
+  conferir('4400 mostra o candidato', estado.cartao &&!estado.nulo, estado.nome ?? '')
 
-await limpar()
-await teclar('4040')
-estado = await pagina.evaluate(() => ({
-  cartao: Boolean(document.querySelector('.urna__cartao')),
-  nulo: Boolean(document.querySelector('.urna__nulo')),
-}))
-conferir('4040 (dígitos certos, ordem errada) dá voto nulo', estado.nulo &&!estado.cartao)
-await limpar()
+  await limpar()
+  await teclar('1234')
+  estado = await pagina.evaluate(() => ({
+    cartao: Boolean(document.querySelector('.urna__cartao')),
+    nulo: Boolean(document.querySelector('.urna__nulo')),
+  }))
+  conferir('1234 dá voto nulo', estado.nulo &&!estado.cartao)
+
+  await limpar()
+  await teclar('4040')
+  estado = await pagina.evaluate(() => ({
+    cartao: Boolean(document.querySelector('.urna__cartao')),
+    nulo: Boolean(document.querySelector('.urna__nulo')),
+  }))
+  conferir('4040 (dígitos certos, ordem errada) dá voto nulo', estado.nulo &&!estado.cartao)
+  await limpar()
+}
 
 /* ---------- 4. Sanfona das propostas ---------- */
 const eixos = await pagina.evaluate(() => {
@@ -177,7 +247,406 @@ const campos = await pagina.evaluate(() => {
 })
 conferir('Todo campo tem rótulo', campos.length === 0, campos.join(', '))
 
-/* ---------- 9. Contadores e revelações ao percorrer a página ----------
+/* ---------- 9. Gerador de artes: a seção existe e está no lugar ---------- */
+await pagina.setViewport({ width: 1440, height: 900 })
+await espera(300)
+
+const secaoArte = await pagina.evaluate(() => {
+  const secao = document.getElementById('arte')
+  if (!secao) return null
+
+  const ordem = [...document.querySelectorAll('main section[id]')].map((s) => s.id)
+  const abas = [...document.querySelectorAll('.arte__aba')].map((b) => ({
+    formato: b.dataset.formato,
+    marcada: b.getAttribute('aria-selected'),
+  }))
+
+  return {
+    ordem,
+    abas,
+    aviso: !!secao.querySelector('.arte__aviso[role="status"]'),
+    noMenu: [...document.querySelectorAll('.nav a')].some((a) => a.getAttribute('href') === '#arte'),
+  }
+})
+
+conferir('Seção de artes existe', secaoArte !== null)
+conferir(
+  'Seção de artes fica entre conquistas e contato',
+  secaoArte?.ordem.indexOf('arte') === secaoArte?.ordem.indexOf('conquistas') + 1 &&
+    secaoArte?.ordem.indexOf('contato') === secaoArte?.ordem.indexOf('arte') + 1,
+  secaoArte?.ordem.join(' > '),
+)
+conferir('Seção de artes está no menu', secaoArte?.noMenu === true)
+conferir(
+  'Duas abas de formato, perfil marcada',
+  secaoArte?.abas.length === 2 &&
+    secaoArte.abas[0].formato === 'perfil' &&
+    secaoArte.abas[0].marcada === 'true',
+  secaoArte?.abas.map((a) => `${a.formato}:${a.marcada}`).join(' '),
+)
+conferir('Seção de artes tem região de aviso', secaoArte?.aviso === true)
+
+/* ---------- 10. Gerador de artes: a grade de molduras ---------- */
+const grade = await pagina.evaluate(() => {
+  const g = document.querySelector('.molduras__grade')
+  if (!g) return null
+  const itens = [...g.querySelectorAll('.molduras__opcao')]
+  return {
+    papel: g.getAttribute('role'),
+    quantos: itens.length,
+    marcados: itens.filter((i) => i.getAttribute('aria-checked') === 'true').length,
+    primeiro: itens[0]?.getAttribute('aria-checked'),
+    focaveis: itens.filter((i) => i.tabIndex === 0).length,
+    mini: itens[0]?.querySelector('img')?.getAttribute('src'),
+  }
+})
+
+conferir('Grade é um radiogroup', grade?.papel === 'radiogroup')
+conferir('Oito molduras de perfil', grade?.quantos === 8, String(grade?.quantos))
+conferir('Exatamente uma marcada, a primeira', grade?.marcados === 1 && grade?.primeiro === 'true')
+conferir('Só um item recebe Tab', grade?.focaveis === 1, String(grade?.focaveis))
+conferir(
+  'A grade carrega miniatura, não o overlay',
+  grade?.mini?.includes('/molduras/mini/') === true,
+  grade?.mini,
+)
+
+// Seta para a direita anda na grade e leva a marcação junto.
+await pagina.focus('.molduras__opcao[aria-checked="true"]')
+await pagina.keyboard.press('ArrowRight')
+await espera(150)
+const depoisDaSeta = await pagina.evaluate(() => {
+  const itens = [...document.querySelectorAll('.molduras__opcao')]
+  return {
+    marcado: itens.findIndex((i) => i.getAttribute('aria-checked') === 'true'),
+    focado: itens.indexOf(document.activeElement),
+  }
+})
+conferir(
+  'Seta anda na grade e move a marcação',
+  depoisDaSeta.marcado === 1 && depoisDaSeta.focado === 1,
+  `marcado ${depoisDaSeta.marcado}, focado ${depoisDaSeta.focado}`,
+)
+
+// Trocar para story troca a grade e volta para a primeira moldura.
+await pagina.click('.arte__aba[data-formato="story"]')
+await espera(250)
+const noStory = await pagina.evaluate(() => {
+  const itens = [...document.querySelectorAll('.molduras__opcao')]
+  return {
+    quantos: itens.length,
+    marcado: itens.findIndex((i) => i.getAttribute('aria-checked') === 'true'),
+    aba: document.querySelector('.arte__aba[data-formato="story"]').getAttribute('aria-selected'),
+  }
+})
+conferir('Story tem dez molduras', noStory.quantos === 10, String(noStory.quantos))
+conferir('Trocar de formato volta para a primeira moldura', noStory.marcado === 0)
+conferir('A aba de story fica marcada', noStory.aba === 'true')
+
+await pagina.click('.arte__aba[data-formato="perfil"]')
+await espera(200)
+
+/* ---------- 11. Gerador de artes: enquadramento ---------- */
+const pasta = await mkdtemp(join(tmpdir(), 'artes-'))
+const caminhoFoto = join(pasta, 'foto.png')
+await writeFile(caminhoFoto, pngDeTeste())
+
+/* Conta pixels opacos. Sem foto, o miolo da moldura é vazado e sobram
+   transparentes; com a foto, o cover cobre tudo e não sobra nenhum. */
+const opacidade = () =>
+  pagina.evaluate(() => {
+    const c = document.querySelector('.enquadrar__tela')
+    if (!c) return null
+    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data
+    let opacos = 0
+    for (let i = 3; i < d.length; i += 4) if (d[i] > 0) opacos++
+    return { opacos, total: d.length / 4, largura: c.width, altura: c.height }
+  })
+
+const semFoto = await opacidade()
+conferir('Canvas de trabalho existe', semFoto !== null)
+conferir(
+  'Sem foto, o miolo da moldura fica vazado',
+  semFoto && semFoto.opacos > 0 && semFoto.opacos < semFoto.total,
+  `${semFoto?.opacos}/${semFoto?.total}`,
+)
+
+const entrada = await pagina.$('.enquadrar__arquivo')
+await entrada.uploadFile(caminhoFoto)
+await espera(900)
+
+const comFoto = await opacidade()
+conferir('A foto foi desenhada', comFoto.opacos === comFoto.total, `${comFoto.opacos}/${comFoto.total}`)
+conferir('Canvas de trabalho é quadrado no perfil', comFoto.largura === comFoto.altura)
+conferir('Canvas de trabalho não é o tamanho nativo', comFoto.largura < 2048, `${comFoto.largura}px`)
+
+/* Uma assinatura barata dos pixels. Comparar o tamanho do dataURL não serve:
+   duas imagens diferentes cabem no mesmo número de bytes. */
+const assinar = () =>
+  pagina.evaluate(() => {
+    const c = document.querySelector('.enquadrar__tela')
+    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data
+    let h = 0
+    for (let i = 0; i < d.length; i += 997) h = (h * 31 + d[i]) >>> 0
+    return h
+  })
+
+/* Em zoom 1, uma foto 1200x600 num quadro quadrado sobra só na horizontal:
+   arrastar na vertical não pode mexer em nada. */
+const antesDeArrastar = await assinar()
+await pagina.focus('.enquadrar__tela')
+await pagina.keyboard.press('ArrowUp')
+await espera(200)
+conferir('Sem sobra na vertical, a seta para cima não move nada', (await assinar()) === antesDeArrastar)
+
+await pagina.keyboard.press('ArrowLeft')
+await espera(200)
+conferir('Com sobra na horizontal, a seta para a esquerda move', (await assinar()) !== antesDeArrastar)
+
+await pagina.keyboard.press('Home')
+await espera(200)
+conferir('Home volta ao enquadramento inicial', (await assinar()) === antesDeArrastar)
+
+const zoom = await pagina.$('.enquadrar__zoom')
+conferir(
+  'Controle de zoom vai de 1 a 3',
+  await pagina.evaluate((e) => e.min === '1' && e.max === '3', zoom),
+)
+
+/* A roda do mouse sobre o enquadramento aproxima, e a página NÃO rola.
+   O React registra wheel como listener passivo no contêiner raiz, então um
+   preventDefault vindo de onWheel é engolido: só listener nativo com
+   passive:false segura a página. É esse caminho que a prova cobre. */
+const caixaPalco = await pagina.evaluate(() => {
+  const r = document.querySelector('.enquadrar__palco').getBoundingClientRect()
+  return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) }
+})
+
+const antesDaRoda = await pagina.evaluate(() => ({
+  rolagem: Math.round(window.scrollY),
+  zoom: Number(document.querySelector('.enquadrar__zoom').value),
+}))
+
+await pagina.mouse.move(caixaPalco.x, caixaPalco.y)
+await pagina.mouse.wheel({ deltaY: -240 })
+await espera(300)
+
+const depoisDaRoda = await pagina.evaluate(() => ({
+  rolagem: Math.round(window.scrollY),
+  zoom: Number(document.querySelector('.enquadrar__zoom').value),
+}))
+
+conferir(
+  'Roda sobre o enquadramento aproxima a foto',
+  depoisDaRoda.zoom > antesDaRoda.zoom,
+  `${antesDaRoda.zoom} para ${depoisDaRoda.zoom}`,
+)
+conferir(
+  'Roda sobre o enquadramento não rola a página',
+  depoisDaRoda.rolagem === antesDaRoda.rolagem,
+  `${antesDaRoda.rolagem} para ${depoisDaRoda.rolagem}`,
+)
+
+// E fora do enquadramento a roda continua rolando a página, como deve.
+await pagina.mouse.move(20, 400)
+await pagina.mouse.wheel({ deltaY: 240 })
+await espera(300)
+const foraDoPalco = await pagina.evaluate(() => Math.round(window.scrollY))
+conferir(
+  'Fora do enquadramento a roda ainda rola a página',
+  foraDoPalco > depoisDaRoda.rolagem,
+  `${depoisDaRoda.rolagem} para ${foraDoPalco}`,
+)
+
+await pagina.evaluate(() => document.getElementById('arte').scrollIntoView())
+await espera(300)
+await pagina.evaluate(() => document.querySelector('.enquadrar__redefinir').click())
+await espera(300)
+
+/* A mesma roda, mas com o Lenis LIGADO.
+   ----------------------------------------------------------------------
+   `iniciarRolagem()` desliga o Lenis inteiro sob prefers-reduced-motion, que é
+   o que `pagina` roda a suíte inteira. A primeira versão desta prova passava
+   nessa página e não pegava nada: o bug real era o Lenis, que intercepta a
+   roda antes do DOM nativo decidir o que fazer com ela, por baixo de qualquer
+   preventDefault. Só um teste com o Lenis de verdade ligado prova a correção
+   (data-lenis-prevent-wheel em .enquadrar__palco). Por isso uma aba própria,
+   sem emular movimento reduzido. */
+const abaComLenis = await navegador.newPage()
+await abaComLenis.setViewport({ width: 1440, height: 900 })
+await abaComLenis.goto(URL, { waitUntil: 'networkidle0' })
+await abaComLenis.evaluate(() => document.fonts.ready)
+await espera(1200) // o laço de requestAnimationFrame do Lenis precisa iniciar
+
+/* `scrollIntoView()` não serve aqui: `base.css` põe `scroll-behavior: smooth`
+   no documento, e essa rolagem nativa briga com a do Lenis em vez de somar —
+   a primeira versão desta prova rolava para lugar nenhum, a caixa calculada
+   ficava fora da tela, e o clique de roda caía no vazio. Rolar com a própria
+   roda, num ponto fora de qualquer cartão, é o mesmo caminho que a pessoa usa
+   de verdade, e é o único que o Lenis realmente obedece. */
+const rolarAteVer = async (seletor) => {
+  for (let tentativa = 0; tentativa < 50; tentativa++) {
+    const topo = await abaComLenis.evaluate(
+      (s) => document.querySelector(s)?.getBoundingClientRect().top ?? null,
+      seletor,
+    )
+    if (topo === null) throw new Error(`elemento não encontrado: ${seletor}`)
+    if (topo > 90 && topo < 260) return
+    await abaComLenis.mouse.move(12, 450)
+    await abaComLenis.mouse.wheel({ deltaY: topo > 260 ? 700 : -700 })
+    await espera(140)
+  }
+  throw new Error(`não conseguiu rolar até ${seletor}`)
+}
+
+await rolarAteVer('#arte')
+await espera(600) // o Lenis ainda está freando; sem isto a caixa medida abaixo já ficou velha
+await (await abaComLenis.$('.enquadrar__arquivo')).uploadFile(caminhoFoto)
+await espera(900)
+
+const caixaComLenis = await abaComLenis.evaluate(() => {
+  const r = document.querySelector('.enquadrar__palco').getBoundingClientRect()
+  return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) }
+})
+const antesLenis = await abaComLenis.evaluate(() => ({
+  rolagem: Math.round(window.scrollY),
+  zoom: Number(document.querySelector('.enquadrar__zoom').value),
+}))
+
+await abaComLenis.mouse.move(caixaComLenis.x, caixaComLenis.y)
+await abaComLenis.mouse.wheel({ deltaY: -240 })
+await espera(600) // o Lenis anima a rolagem em vários quadros, não num só
+
+const depoisLenis = await abaComLenis.evaluate(() => ({
+  rolagem: Math.round(window.scrollY),
+  zoom: Number(document.querySelector('.enquadrar__zoom').value),
+}))
+
+conferir(
+  'Com o Lenis ligado, a roda sobre o enquadramento aproxima a foto',
+  depoisLenis.zoom > antesLenis.zoom,
+  `${antesLenis.zoom} para ${depoisLenis.zoom}`,
+)
+conferir(
+  'Com o Lenis ligado, a roda sobre o enquadramento não rola a página',
+  Math.abs(depoisLenis.rolagem - antesLenis.rolagem) <= 2,
+  `${antesLenis.rolagem} para ${depoisLenis.rolagem}`,
+)
+
+await abaComLenis.mouse.move(20, 400)
+await abaComLenis.mouse.wheel({ deltaY: 240 })
+await espera(600)
+const foraComLenis = await abaComLenis.evaluate(() => Math.round(window.scrollY))
+conferir(
+  'Com o Lenis ligado, a roda fora do enquadramento ainda rola a página',
+  foraComLenis > depoisLenis.rolagem,
+  `${depoisLenis.rolagem} para ${foraComLenis}`,
+)
+
+await abaComLenis.close()
+
+// Trocar de moldura tem de mudar o que está desenhado, não só o aria-checked.
+const antesDaMoldura = await assinar()
+await pagina.click('.molduras__opcao[data-id="perfil-03"]')
+await espera(900)
+conferir('Trocar de moldura muda o desenho', (await assinar()) !== antesDaMoldura)
+
+await pagina.click('.molduras__opcao[data-id="perfil-01"]')
+await espera(600)
+
+/* A foto sobrevive à troca de formato. */
+await pagina.click('.arte__aba[data-formato="story"]')
+await espera(900)
+const noStoryComFoto = await opacidade()
+conferir('A foto sobrevive à troca de formato', noStoryComFoto.opacos === noStoryComFoto.total)
+conferir(
+  'Canvas assume a proporção do story',
+  (noStoryComFoto.largura / noStoryComFoto.altura).toFixed(4) === (1080 / 1920).toFixed(4),
+  `${noStoryComFoto.largura}x${noStoryComFoto.altura}`,
+)
+
+await pagina.click('.arte__aba[data-formato="perfil"]')
+await espera(600)
+
+/* ---------- 12. Gerador de artes: resultado e download ---------- */
+const previa = await pagina.evaluate(() => {
+  const c = document.querySelector('.resultado__previa')
+  if (!c) return null
+  const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data
+  let opacos = 0
+  for (let i = 3; i < d.length; i += 4) if (d[i] > 0) opacos++
+  return {
+    opacos,
+    total: d.length / 4,
+    medida: document.querySelector('.resultado__medida')?.textContent,
+  }
+})
+conferir('Prévia desenha a mesma cena', previa?.opacos === previa?.total)
+conferir('A medida do arquivo é anunciada', /2048/.test(previa?.medida ?? ''), previa?.medida)
+
+const cdp = await pagina.createCDPSession()
+await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: pasta })
+
+await pagina.click('.resultado__baixar')
+for (let i = 0; i < 40; i++) {
+  const arquivos = await readdir(pasta)
+  if (arquivos.some((a) => a.endsWith('.png') && a !== 'foto.png')) break
+  await espera(250)
+}
+
+const baixados = (await readdir(pasta)).filter((a) => a.endsWith('.png') && a !== 'foto.png')
+conferir(
+  'O arquivo baixado tem o nome da campanha',
+  baixados[0] === 'foto-perfil-dr-bruno-resende-4400.png',
+  baixados.join(', '),
+)
+
+const png = await readFile(join(pasta, baixados[0]))
+const dim = dimensoesPng(png)
+conferir('O arquivo baixado é PNG de verdade', dim.assinatura === true)
+conferir(
+  'Perfil sai em 2048 x 2048',
+  dim.largura === 2048 && dim.altura === 2048,
+  `${dim.largura} x ${dim.altura}`,
+)
+
+await pagina.click('.arte__aba[data-formato="story"]')
+await espera(900)
+await pagina.click('.resultado__baixar')
+for (let i = 0; i < 40; i++) {
+  const arquivos = await readdir(pasta)
+  if (arquivos.some((a) => a.startsWith('story-'))) break
+  await espera(250)
+}
+const doStory = (await readdir(pasta)).find((a) => a.startsWith('story-'))
+conferir('O story também baixa', doStory === 'story-dr-bruno-resende-4400.png', String(doStory))
+
+const dimStory = dimensoesPng(await readFile(join(pasta, doStory)))
+conferir(
+  'Story sai em 1080 x 1920',
+  dimStory.largura === 1080 && dimStory.altura === 1920,
+  `${dimStory.largura} x ${dimStory.altura}`,
+)
+
+await pagina.click('.arte__aba[data-formato="perfil"]')
+await espera(500)
+
+/* Nenhum alvo de toque abaixo de 44px na largura mais apertada. */
+await pagina.setViewport({ width: 360, height: 800 })
+await espera(600)
+const alvos = await pagina.evaluate(() => {
+  const seletor = '#arte button, #arte label.btn, #arte input[type="range"]'
+  return [...document.querySelectorAll(seletor)]
+    .map((e) => ({ classe: e.className, altura: Math.round(e.getBoundingClientRect().height) }))
+    .filter((e) => e.altura > 0 && e.altura < 44)
+})
+conferir(
+  'Nenhum alvo de toque abaixo de 44px em 360px',
+  alvos.length === 0,
+  alvos.map((a) => `${a.classe}:${a.altura}`).join(' | '),
+)
+
+/* ---------- 13. Contadores e revelações ao percorrer a página ----------
    Com movimento reduzido o Lenis fica desligado, então window.scrollTo
    funciona, e os IntersectionObserver continuam disparando normalmente, que é
    o que precisa ser provado aqui. */
@@ -210,4 +679,5 @@ await navegador.close()
 
 const falhas = resultados.filter((r) =>!r.ok)
 console.log(`\n${resultados.length - falhas.length}/${resultados.length} provas passaram`)
+for (const p of pulados) console.log(`PULADA: ${p.nome}, ${p.motivo}`)
 process.exit(falhas.length ? 1 : 0)

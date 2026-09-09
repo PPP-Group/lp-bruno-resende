@@ -12,6 +12,7 @@ import { Hero } from './components/hero/Hero.jsx'
 import { Sobre } from './components/sobre/Sobre.jsx'
 import { Propostas } from './components/propostas/Propostas.jsx'
 import { Conquistas } from './components/conquistas/Conquistas.jsx'
+import { Arte } from './components/arte/Arte.jsx'
 import { Contato } from './components/contato/Contato.jsx'
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
         <Conquistas />
 
         <FaixaCorrida frases={conquistas.leis.map((l) => `${l.titulo} · ${l.lei}/${l.ano}`)} />
+        <Arte />
         <Contato />
       </main>
 
