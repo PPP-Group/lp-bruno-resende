@@ -156,3 +156,96 @@
 .molduras__opcao[aria-checked='true'] .molduras__selo {
   display: block;
 }
+
+/* ---------- Enquadramento ---------- */
+
+/* O xadrez diz "aqui é transparente" sem precisar de imagem. */
+.enquadrar__palco {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  background-color: var(--color-papel-alto);
+  background-image: repeating-conic-gradient(
+    var(--color-papel-fundo) 0% 25%,
+    var(--color-papel-alto) 0% 50%
+  );
+  background-size: 18px 18px;
+  touch-action: none;
+}
+
+.enquadrar__palco[data-tem-foto='true'] {
+  cursor: grab;
+}
+
+.enquadrar__palco[data-tem-foto='true']:active {
+  cursor: grabbing;
+}
+
+.enquadrar__tela {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.enquadrar__tela:focus-visible {
+  outline: 3px solid var(--color-rosa);
+  outline-offset: -3px;
+}
+
+.enquadrar__vazio {
+  position: absolute;
+  margin: 0;
+  padding-inline: 1.5rem;
+  text-align: center;
+  font-family: var(--font-campanha);
+  font-size: 1.1rem;
+  color: var(--color-tinta-fraca);
+  pointer-events: none;
+}
+
+.enquadrar__dica {
+  margin: 0;
+  font-size: var(--text-mini);
+  color: var(--color-tinta-fraca);
+}
+
+.enquadrar__escolher {
+  width: 100%;
+  cursor: pointer;
+}
+
+.enquadrar__zoom-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: var(--text-mini);
+  color: var(--color-tinta-fraca);
+}
+
+/* 2,75rem são os 44px de alvo de toque. Um range sem altura declarada nasce
+   com uns 20px, o que reprova na prova de toque em 360px. */
+.enquadrar__zoom {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.75rem;
+  accent-color: var(--color-rosa);
+}
+
+.enquadrar__redefinir {
+  min-height: 2.75rem;
+  padding-inline: 0.9rem;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--color-papel-fundo);
+  border-radius: 999px;
+  font: inherit;
+  color: var(--color-mar);
+}
+
+.enquadrar__redefinir:disabled,
+.enquadrar__zoom:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

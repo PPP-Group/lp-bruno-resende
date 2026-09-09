@@ -1,6 +1,11 @@
 /* Provas de comportamento, o que captura de tela não mostra.
    Uso: URL_ALVO=http://localhost:PORTA node scripts/provar.mjs */
 
+import { mkdtemp, writeFile, readdir, readFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import zlib from 'node:zlib'
+
 import puppeteer from 'puppeteer-core'
 
 const URL = process.env.URL_ALVO ?? 'http://localhost:5181'
@@ -27,6 +32,51 @@ const pular = (nome, motivo) => {
   pulados.push({ nome, motivo })
   console.log(`PULADO ${nome}, ${motivo}`)
 }
+
+/* Um PNG de teste, gerado na hora: nada binário entra no repositório. As
+   dimensões são deitadas de propósito, para exercitar o cover num quadro
+   quadrado. Cada quadrante tem uma cor, o que faz dar para perceber que o
+   desenho mudou depois de arrastar. */
+const pngDeTeste = (largura = 1200, altura = 600) => {
+  const cru = Buffer.alloc((largura * 3 + 1) * altura)
+  let p = 0
+  for (let y = 0; y < altura; y++) {
+    cru[p++] = 0 // filtro da linha: nenhum
+    for (let x = 0; x < largura; x++) {
+      cru[p++] = x < largura / 2 ? 230 : 20
+      cru[p++] = y < altura / 2 ? 200 : 40
+      cru[p++] = 120
+    }
+  }
+
+  const pedaco = (tipo, dados) => {
+    const corpo = Buffer.concat([Buffer.from(tipo, 'ascii'), dados])
+    const tam = Buffer.alloc(4)
+    tam.writeUInt32BE(dados.length)
+    const crc = Buffer.alloc(4)
+    crc.writeUInt32BE(zlib.crc32(corpo))
+    return Buffer.concat([tam, corpo, crc])
+  }
+
+  const ihdr = Buffer.alloc(13)
+  ihdr.writeUInt32BE(largura, 0)
+  ihdr.writeUInt32BE(altura, 4)
+  ihdr[8] = 8 // 8 bits por canal
+  ihdr[9] = 2 // truecolor, sem alfa
+
+  return Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    pedaco('IHDR', ihdr),
+    pedaco('IDAT', zlib.deflateSync(cru)),
+    pedaco('IEND', Buffer.alloc(0)),
+  ])
+}
+
+const dimensoesPng = (buf) => ({
+  assinatura: buf.subarray(0, 8).toString('hex') === '89504e470d0a1a0a',
+  largura: buf.readUInt32BE(16),
+  altura: buf.readUInt32BE(20),
+})
 
 const pagina = await navegador.newPage()
 await pagina.setViewport({ width: 1440, height: 900 })
@@ -296,7 +346,97 @@ conferir('A aba de story fica marcada', noStory.aba === 'true')
 await pagina.click('.arte__aba[data-formato="perfil"]')
 await espera(200)
 
-/* ---------- 11. Contadores e revelações ao percorrer a página ----------
+/* ---------- 11. Gerador de artes: enquadramento ---------- */
+const pasta = await mkdtemp(join(tmpdir(), 'artes-'))
+const caminhoFoto = join(pasta, 'foto.png')
+await writeFile(caminhoFoto, pngDeTeste())
+
+/* Conta pixels opacos. Sem foto, o miolo da moldura é vazado e sobram
+   transparentes; com a foto, o cover cobre tudo e não sobra nenhum. */
+const opacidade = () =>
+  pagina.evaluate(() => {
+    const c = document.querySelector('.enquadrar__tela')
+    if (!c) return null
+    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data
+    let opacos = 0
+    for (let i = 3; i < d.length; i += 4) if (d[i] > 0) opacos++
+    return { opacos, total: d.length / 4, largura: c.width, altura: c.height }
+  })
+
+const semFoto = await opacidade()
+conferir('Canvas de trabalho existe', semFoto !== null)
+conferir(
+  'Sem foto, o miolo da moldura fica vazado',
+  semFoto && semFoto.opacos > 0 && semFoto.opacos < semFoto.total,
+  `${semFoto?.opacos}/${semFoto?.total}`,
+)
+
+const entrada = await pagina.$('.enquadrar__arquivo')
+await entrada.uploadFile(caminhoFoto)
+await espera(900)
+
+const comFoto = await opacidade()
+conferir('A foto foi desenhada', comFoto.opacos === comFoto.total, `${comFoto.opacos}/${comFoto.total}`)
+conferir('Canvas de trabalho é quadrado no perfil', comFoto.largura === comFoto.altura)
+conferir('Canvas de trabalho não é o tamanho nativo', comFoto.largura < 2048, `${comFoto.largura}px`)
+
+/* Uma assinatura barata dos pixels. Comparar o tamanho do dataURL não serve:
+   duas imagens diferentes cabem no mesmo número de bytes. */
+const assinar = () =>
+  pagina.evaluate(() => {
+    const c = document.querySelector('.enquadrar__tela')
+    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data
+    let h = 0
+    for (let i = 0; i < d.length; i += 997) h = (h * 31 + d[i]) >>> 0
+    return h
+  })
+
+/* Em zoom 1, uma foto 1200x600 num quadro quadrado sobra só na horizontal:
+   arrastar na vertical não pode mexer em nada. */
+const antesDeArrastar = await assinar()
+await pagina.focus('.enquadrar__tela')
+await pagina.keyboard.press('ArrowUp')
+await espera(200)
+conferir('Sem sobra na vertical, a seta para cima não move nada', (await assinar()) === antesDeArrastar)
+
+await pagina.keyboard.press('ArrowLeft')
+await espera(200)
+conferir('Com sobra na horizontal, a seta para a esquerda move', (await assinar()) !== antesDeArrastar)
+
+await pagina.keyboard.press('Home')
+await espera(200)
+conferir('Home volta ao enquadramento inicial', (await assinar()) === antesDeArrastar)
+
+const zoom = await pagina.$('.enquadrar__zoom')
+conferir(
+  'Controle de zoom vai de 1 a 3',
+  await pagina.evaluate((e) => e.min === '1' && e.max === '3', zoom),
+)
+
+// Trocar de moldura tem de mudar o que está desenhado, não só o aria-checked.
+const antesDaMoldura = await assinar()
+await pagina.click('.molduras__opcao[data-id="perfil-03"]')
+await espera(900)
+conferir('Trocar de moldura muda o desenho', (await assinar()) !== antesDaMoldura)
+
+await pagina.click('.molduras__opcao[data-id="perfil-01"]')
+await espera(600)
+
+/* A foto sobrevive à troca de formato. */
+await pagina.click('.arte__aba[data-formato="story"]')
+await espera(900)
+const noStoryComFoto = await opacidade()
+conferir('A foto sobrevive à troca de formato', noStoryComFoto.opacos === noStoryComFoto.total)
+conferir(
+  'Canvas assume a proporção do story',
+  (noStoryComFoto.largura / noStoryComFoto.altura).toFixed(4) === (1080 / 1920).toFixed(4),
+  `${noStoryComFoto.largura}x${noStoryComFoto.altura}`,
+)
+
+await pagina.click('.arte__aba[data-formato="perfil"]')
+await espera(600)
+
+/* ---------- 12. Contadores e revelações ao percorrer a página ----------
    Com movimento reduzido o Lenis fica desligado, então window.scrollTo
    funciona, e os IntersectionObserver continuam disparando normalmente, que é
    o que precisa ser provado aqui. */

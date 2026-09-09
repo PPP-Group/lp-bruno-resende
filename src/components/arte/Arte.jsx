@@ -1,18 +1,13 @@
-import { useMemo, useReducer } from 'react'
 import { candidato } from '../../data/candidato.js'
 import { useRevelar } from '../../lib/useRevelar.js'
-import { estadoInicial, reduzirArte } from '../../lib/arteEstado.js'
+import { useArte } from '../../lib/useArte.js'
 import { Molduras } from './Molduras.jsx'
+import { Enquadrar } from './Enquadrar.jsx'
 
 export function Arte() {
   const { arte } = candidato
   const [ref, visivel] = useRevelar()
-  const [estado, despachar] = useReducer(reduzirArte, arte.formatos[0].id, estadoInicial)
-
-  const formato = useMemo(
-    () => arte.formatos.find((f) => f.id === estado.formato),
-    [arte.formatos, estado.formato],
-  )
+  const { estado, despachar, formato, quadro, cena, escolherFoto } = useArte(arte.formatos)
 
   /* Setas circulam entre as abas, como manda o padrão de tablist. */
   const abasNoTeclado = (e) => {
@@ -73,6 +68,14 @@ export function Arte() {
               <span className="arte__passo-num">1</span>
               {arte.passos[0]}
             </h3>
+            <Enquadrar
+              estado={estado}
+              despachar={despachar}
+              quadro={quadro}
+              cena={cena}
+              aoEscolherArquivo={escolherFoto}
+              textos={arte}
+            />
           </article>
 
           <article className="cartao arte__cartao">
@@ -96,8 +99,21 @@ export function Arte() {
           </article>
         </div>
 
-        <p className="arte__aviso" role="status" aria-live="polite" data-erro={!!estado.erro}>
-          {estado.erro ? arte.avisos[estado.erro] : arte.avisos.semFoto}
+        {/* `semPartilha` viaja pelo mesmo canal dos erros por economia de
+            mecanismo, mas não é erro e não sai em vermelho. */}
+        <p
+          className="arte__aviso"
+          role="status"
+          aria-live="polite"
+          data-erro={!!estado.erro && estado.erro !== 'semPartilha'}
+        >
+          {estado.erro
+            ? arte.avisos[estado.erro]
+            : estado.carregando
+              ? arte.avisos.carregando
+              : estado.foto
+                ? arte.avisos.pronta
+                : arte.avisos.semFoto}
         </p>
       </div>
     </section>
